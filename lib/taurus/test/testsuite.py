@@ -101,30 +101,8 @@ def run(disableLogger=True, exclude_pattern='(?!)'):
     return runner.run(suite)
 
 
-def main():
+def main(args):
     import taurus.test.skip
-    import argparse
-    from taurus import Release
-    parser = argparse.ArgumentParser(description='Main test suite for Taurus')
-    parser.add_argument('--skip-gui-tests', dest='skip_gui',
-                        action='store_true', default=False,
-                        help='Do not perform tests requiring GUI')
-    # TODO: Define the default exclude patterns as a tauruscustomsettings
-    # variable.
-    help = """regexp pattern matching test ids to be excluded.
-    (e.g. 'taurus\.core\..*' would exclude taurus.core tests)
-    """
-    parser.add_argument('-e', '--exclude-pattern',
-                        dest='exclude_pattern',
-                        default='(?!)',
-                        help=help)
-    parser.add_argument('--version', action='store_true', default=False,
-                        help="show program's version number and exit")
-    args = parser.parse_args()
-
-    if args.version:
-        print(Release.version)
-        sys.exit(0)
 
     if args.skip_gui:
         import taurus.test.skip
@@ -144,5 +122,27 @@ def main():
     sys.exit(exit_code)
 
 
+def add_parser(make_parser):
+    parser = make_parser(description='Main test suite for Taurus')
+    parser.add_argument('--skip-gui-tests', dest='skip_gui',
+                        action='store_true', default=False,
+                        help='Do not perform tests requiring GUI')
+    # TODO: Define the default exclude patterns as a tauruscustomsettings
+    # variable.
+    help = """regexp pattern matching test ids to be excluded.
+    (e.g. 'taurus\.core\..*' would exclude taurus.core tests)
+    """
+    parser.add_argument('-e', '--exclude-pattern',
+                        default='(?!)',
+                        help=help)
+
+    parser.set_defaults(cmd=main)
+
+    return parser
+
+
 if __name__ == '__main__':
-    main()
+    from argparse import ArgumentParser
+    parser = add_parser(ArgumentParser)
+    args = parser.parse_args()
+    args.cmd(args)
