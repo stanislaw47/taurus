@@ -23,7 +23,13 @@
 
 """"""
 
-__all__ = ["AbstractConfigLoader"]
+__all__ = ["AbstractConfigLoader", "ConfigLoaderError"]
+
+
+class ConfigLoaderError(Exception):
+    def __init__(self, message):
+        message = "Exception raised while loading configuration: " + message
+        super(ConfigLoaderError, self).__init__(message)
 
 
 class AbstractConfigLoader(object):
@@ -33,3 +39,22 @@ class AbstractConfigLoader(object):
 
     def __init__(self, confname):
         self.confname = confname
+
+        self.app_name = None
+        self.org_name = None
+        self.custom_logo = None
+        self.org_logo = None
+        self.single_instance = None
+        self.manual_uri = None
+        self.ini_file = None
+        self.extra_catalog_widgets = None
+        self.synoptics = None
+        self.console = None
+
+        self.panels = []
+        self.toolbars = []
+        self.applets = []
+        self.external_apps = []
+
+    def load():
+        pass
