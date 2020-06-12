@@ -32,7 +32,7 @@ __all__ = ["getLoader"]
 def getLoader(confname):
     ext = os.path.splitext(confname)[-1]
 
-    if os.path.isdir(confname) or ext == ".py":
+    if os.path.isdir(confname) or ext == ".py" or "/" not in confname:
         from .pyconf import PyConfigLoader
         return PyConfigLoader(confname)
     elif ext == ".xml":
