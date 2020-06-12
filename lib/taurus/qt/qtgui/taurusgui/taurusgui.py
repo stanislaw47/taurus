@@ -999,7 +999,6 @@ class TaurusGui(TaurusMainWindow):
                 self, 'Initialization error', msg, Qt.QMessageBox.Abort)
             sys.exit()
 
-        xmlroot = None
         self._loadAppName(conf, confname)
         self._loadOrgName(conf)
         self._loadCustomLogo(conf)
@@ -1041,7 +1040,7 @@ class TaurusGui(TaurusMainWindow):
         if self.APPLETS_TOOLBAR_ENABLED:
             self.jorgsBar.addAction(custom_icon, Qt.qApp.applicationName())
 
-    def _loadOrgLogo(self, conf, xmlroot):
+    def _loadOrgLogo(self, conf):
         logo = getattr(tauruscustomsettings,
                        "ORGANIZATION_LOGO",
                        "logos:taurus.png")
@@ -1083,7 +1082,7 @@ class TaurusGui(TaurusMainWindow):
                 pix_map_name = os.path.join(self._confDirectory, pix_map_name)
             self._extraCatalogWidgets.append((class_name, pix_map_name))
 
-    def _loadManualUri(self, conf, xmlroot):
+    def _loadManualUri(self, conf):
         """
         manual panel
         """
@@ -1157,7 +1156,7 @@ class TaurusGui(TaurusMainWindow):
         for s in synoptic:
             self.createMainSynoptic(s)
 
-    def _loadConsole(self, conf, xmlroot):
+    def _loadConsole(self, conf):
         """
         Deprecated CONSOLE command (if you need a IPython Console, just add a
         Panel with a `silx.gui.console.IPythonWidget`
