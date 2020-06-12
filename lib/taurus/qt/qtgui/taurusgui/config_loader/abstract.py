@@ -22,6 +22,12 @@
 ###########################################################################
 
 """"""
+import abc
+
+# Python 2/3 compatibility
+if not hasattr(abc, "ABC"):
+    setattr(abc, "ABC", abc.ABCMeta('ABC', (object,), {}))
+
 
 __all__ = ["AbstractConfigLoader", "ConfigLoaderError"]
 
@@ -32,29 +38,86 @@ class ConfigLoaderError(Exception):
         super(ConfigLoaderError, self).__init__(message)
 
 
-class AbstractConfigLoader(object):
+class AbstractConfigLoader(abc.ABC):
     """
     Abstract class for config loaders
     """
 
     def __init__(self, confname):
-        self.confname = confname
+        self._confname = confname
 
-        self.app_name = None
-        self.org_name = None
-        self.custom_logo = None
-        self.org_logo = None
-        self.single_instance = None
-        self.manual_uri = None
-        self.ini_file = None
-        self.extra_catalog_widgets = None
-        self.synoptics = None
-        self.console = None
+    @abc.abstractmethod
+    def load(self):
+        """
+        This method is meant to load actual data from file on disk
+        """
 
-        self.panels = []
-        self.toolbars = []
-        self.applets = []
-        self.external_apps = []
+    @abc.abstractproperty
+    def app_name(self):
+        """Name of the application"""
+        return None
 
-    def load():
-        pass
+    @abc.abstractproperty
+    def org_name(self):
+        """Name of organization"""
+        return None
+
+    @abc.abstractproperty
+    def custom_logo(self):
+        """Path to application's custom logo file"""
+        return None
+
+    @abc.abstractproperty
+    def org_logo(self):
+        """Path to organization's custom logo file"""
+        return None
+
+    @abc.abstractproperty
+    def single_instance(self):
+        """Whether more than one instance of application can be launched simultaously or not"""
+        return None
+
+    @abc.abstractproperty
+    def manual_uri(self):
+        """URI pointing to application's manual"""
+        return None
+
+    @abc.abstractproperty
+    def ini_file(self):
+        """Path to application's default INI file with settings"""
+        return None
+
+    @abc.abstractproperty
+    def extra_catalog_widgets(self):
+        """Path to application's custom logo file"""
+        return []
+
+    @abc.abstractproperty
+    def synoptics(self):
+        """Sequence of paths to synoptic files"""
+        return []
+
+    @abc.abstractproperty
+    def console(self):
+        """Whether to add console widget or not"""
+        return None
+
+    @abc.abstractproperty
+    def panels(self):
+        """List of custom panels with widgets"""
+        return []
+
+    @abc.abstractproperty
+    def toolbars(self):
+        """List of custom toolbars"""
+        return []
+
+    @abc.abstractproperty
+    def applets(self):
+        """List of custom applets"""
+        return []
+
+    @abc.abstractproperty
+    def external_apps(self):
+        """List of external applications"""
+        return []
