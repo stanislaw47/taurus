@@ -41,6 +41,10 @@ class PyConfigLoader(AbstractConfigLoader):
         super(PyConfigLoader, self).__init__(confname)
         self._mod = types.ModuleType('__dummy_conf_module_%s__' %s confname)  # dummy module
 
+    def _get_objects(self, klass):
+        objs = [obj for name, obj in inspect.getmembers(self._mod)
+                if isinstance(obj, klass)]
+
     def _importConfiguration(self):
         '''returns the module corresponding to `confname` or to
         `tgconf_<confname>`. Note: the `conf` subdirectory of the directory in
@@ -136,24 +140,16 @@ class PyConfigLoader(AbstractConfigLoader):
 
     @property
     def panels(self):
-        panels = [obj for name, obj in inspect.getmembers(self._mod)
-                  if isinstance(obj, PanelDescription)]
-        return panels
+        return self._get_objects(PanelDescription)
 
     @property
     def toolbars(self):
-        toolbars = [obj for name, obj in inspect.getmembers(self._mod)
-                    if isinstance(obj, ToolBarDescription)]
-        return toolbars
+        return self._get_objects(ToolBarDescription)
 
     @property
     def applets(self):
-        applets = [obj for name, obj in inspect.getmembers(self._mod)
-                   if isinstance(obj, AppletDescription)]
-        return applets
+        return self._get_objects(AppletDescription)
 
     @property
     def external_apps(self):
-        external_apps = [obj for name, obj in inspect.getmembers(self._mod)
-                         if isinstance(obj, ExternalApp)]
-        return external_apps
+        return self._get_objects(ExternalApp)
