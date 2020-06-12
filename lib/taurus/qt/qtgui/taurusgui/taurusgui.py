@@ -1285,15 +1285,14 @@ class TaurusGui(TaurusMainWindow):
         get custom applet descriptions from the python config file, xml config and
         create applet based on the descriptions
         """
-        custom_applets = []
+        custom_applets = conf.applets[:]
         # for backwards compatibility
-        MONITOR = getattr(
-            conf, "MONITOR", self.__getVarFromXML(xmlroot, "MONITOR", []))
+        MONITOR = self.getConfigValue(conf, "monitor", [])
         if MONITOR:
             custom_applets.append(AppletDescription(
                 "monitor", classname="TaurusMonitorTiny", model=MONITOR))
 
-        for d in conf.applets:
+        for d in custom_applets:
             try:
                 try:
                     self.splashScreen().showMessage("Creating applet %s" % d.name)

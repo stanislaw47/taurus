@@ -127,6 +127,10 @@ class XmlConfigLoader(AbstractConfigLoader):
         return self._get("CONSOLE")
 
     @property
+    def monitor(self):
+        return self._get("MONITOR")
+
+    @property
     def panels(self):
         return self._get_objects(PanelDescription)
 

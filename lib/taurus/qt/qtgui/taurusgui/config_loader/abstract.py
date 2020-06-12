@@ -121,3 +121,9 @@ class AbstractConfigLoader(abc.ABC):
     def external_apps(self):
         """List of external applications"""
         return []
+
+    # deprecated
+    @abc.abstractproperty
+    def monitor(self):
+        """Model of Monitor widget"""
+        return None

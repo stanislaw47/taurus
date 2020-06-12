@@ -139,6 +139,10 @@ class PyConfigLoader(AbstractConfigLoader):
         return getattr(self._mod, 'CONSOLE', [])
 
     @property
+    def monitor(self):
+        return getattr(self._mod, 'MONITOR')
+
+    @property
     def panels(self):
         return self._get_objects(PanelDescription)
 
