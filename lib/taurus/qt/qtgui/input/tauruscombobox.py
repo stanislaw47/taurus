@@ -36,6 +36,7 @@ from taurus.core import DataType, TaurusEventType
 from taurus.core.taurusattribute import TaurusAttribute
 from taurus.qt.qtgui.base import TaurusBaseWidget, TaurusBaseWritableWidget
 from taurus.core.util import eventfilters
+import numpy
 
 
 class TaurusValueComboBox(Qt.QComboBox, TaurusBaseWritableWidget):
@@ -76,9 +77,10 @@ class TaurusValueComboBox(Qt.QComboBox, TaurusBaseWritableWidget):
         TaurusBaseWritableWidget.postDetach(self)
         try:
             self.currentIndexChanged.disconnect(self.writeIndexValue)
-        except TypeError:
+        except (RuntimeError, TypeError):
             # In new style-signal if a signal is disconnected without
-            # previously was connected it, it raises a TypeError
+            # previously was connected it, it raises a TypeError (PyQt)
+            # or RuntimeError (PySide)
             pass
 
     #-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
@@ -115,8 +117,26 @@ class TaurusValueComboBox(Qt.QComboBox, TaurusBaseWritableWidget):
         Set the value for the widget to display, not the value of the
         attribute.
         """
-        index = self.findData(value)
+        index = self.findData(value, pymatch=True)
         self._setCurrentIndex(index)
+
+    def findData(self, data, **kwargs):
+        """
+        Reimplemented from :meth:`Qt.QComboBox.findData` to accept
+        the extra `pymatch` keyword arg. If `pymatch` is True, the
+        match will be attempted using python's `==` operator.
+        This is required to bypass some limitations imposed by C++'s QVariant .
+        By default, pymatch is False and behaves just as
+        :meth:`Qt.QComboBox.findData`
+        """
+        pymatch = kwargs.pop("pymatch", False)
+        index = Qt.QComboBox.findData(self, data, **kwargs)
+        if pymatch and index == -1:
+            for i in range(self.count()):
+                if numpy.all(self.itemData(i) == data):
+                    index = i
+                    break
+        return index
 
     def updateStyle(self):
         '''reimplemented from :class:`TaurusBaseWritableWidget`'''
@@ -366,7 +386,7 @@ class TaurusAttrListComboBox(Qt.QComboBox, TaurusBaseWidget):
 def _taurusAttrListTest():
     """tests taurusAttrList. Model: an attribute containing a list of strings"""
     from taurus.qt.qtgui.application import TaurusApplication
-    a = TaurusApplication()
+    a = TaurusApplication(cmd_line_parser=None)
     # model = sys.argv[1]
     # model = "eval:['foo','bar']"
     model = "sys/tg_test/1/string_spectrum"
@@ -387,7 +407,7 @@ def _taurusValueComboboxTest():
         ('name2', 2),
         ('name3', 3)
     ]
-    a = TaurusApplication()
+    a = TaurusApplication(cmd_line_parser=None)
     w = Qt.QWidget()
     w.setLayout(Qt.QVBoxLayout())
 

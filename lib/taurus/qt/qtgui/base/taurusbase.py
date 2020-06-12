@@ -29,6 +29,7 @@ should inherit to be considered valid taurus widgets."""
 
 import sys
 import threading
+import pkg_resources
 from types import MethodType
 from future.builtins import str
 from future.utils import string_types
@@ -37,6 +38,7 @@ from taurus.external.qt import Qt
 from enum import Enum
 
 import taurus
+from taurus import warning
 from taurus.core.util import eventfilters
 from taurus.core.util.timer import Timer
 from taurus.core.taurusbasetypes import TaurusElementType, TaurusEventType
@@ -47,7 +49,7 @@ from taurus.core.tauruslistener import TaurusListener, TaurusExceptionListener
 from taurus.core.taurusoperation import WriteAttrOperation
 from taurus.core.util.eventfilters import filterEvent
 from taurus.core.util.log import deprecation_decorator
-from taurus.qt.qtcore.util.signal import baseSignal
+from taurus.qt.qtcore.util import baseSignal
 from taurus.qt.qtcore.configuration import BaseConfigurableClass
 from taurus.qt.qtcore.mimetypes import TAURUS_ATTR_MIME_TYPE
 from taurus.qt.qtcore.mimetypes import TAURUS_DEV_MIME_TYPE
@@ -57,13 +59,20 @@ from taurus.qt.qtgui.util import ActionFactory
 from taurus.core.units import Quantity
 
 
-__all__ = ["TaurusBaseComponent", "TaurusBaseWidget",
-           "TaurusBaseWritableWidget", "defaultFormatter"]
+__all__ = [
+    "TaurusBaseComponent",
+    "TaurusBaseWidget",
+    "TaurusBaseWritableWidget",
+    "defaultFormatter",
+    "expFormatter",
+    "floatFormatter",
+]
 
 __docformat__ = 'restructuredtext'
 
 
 DefaultNoneValue = "-----"
+
 
 
 def defaultFormatter(dtype=None, basecomponent=None, **kwargs):
@@ -81,6 +90,11 @@ def defaultFormatter(dtype=None, basecomponent=None, **kwargs):
         dtype = Enum
     return basecomponent.defaultFormatDict.get(dtype, "{0}")
 
+
+expFormatter = '{:2.3e}'
+floatFormatter = '{:.5f}'
+kkFormatter = '{:.7g}'
+def kkFormatter2(*a, **kw):return {}
 
 class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
     """A generic Taurus component.
@@ -110,7 +124,7 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
 
     taurusEvent = baseSignal('taurusEvent', object, object, object)
 
-    def __init__(self, name='', parent=None, designMode=False):
+    def __init__(self, name='', parent=None, designMode=False, **kwargs):
         """Initialization of TaurusBaseComponent"""
         self.modelObj = None
         self.modelName = ''
@@ -121,8 +135,12 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
 
         BaseConfigurableClass.__init__(self)
 
-        self.taurusMenu = None
-        self.taurusMenuData = ''
+        # --------------------------------------------------------------
+        # Deprecated API for context menu
+        self.taurusMenu = None  # deprecated since 4.5.3a. Do not use
+        self.taurusMenuData = ''  # deprecated since 4.5.3a. Do not use
+        self.__explicitPopupMenu = False
+        # --------------------------------------------------------------
 
         # attributes storing property values
         self._format = None
@@ -164,6 +182,29 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         self.registerConfigProperty(self.getFormat, self.setFormat,
                                     'formatter')
         self.resetModelInConfig()
+
+        # connect taurusEvent signal to filterEvent
+        try:
+            self.taurusEvent.connect(self.filterEvent)
+        except Exception as e:
+            self.warning('Could not connect taurusEvent signal: %r', e)
+
+    @staticmethod
+    def get_registered_formatters():
+        """ Static method to get the registered formatters
+        """
+        # Note: this is an experimental feature introduced in v 4.6.4a
+        # It may be removed or changed in future releases
+
+        formatters = {}
+        for ep in pkg_resources.iter_entry_points('taurus.qt.formatters'):
+            try:
+                formatters[ep.name] = ep.load()
+            except Exception as e:
+                taurus.warning('Cannot load "%s" formatter. Reason: %r',
+                               ep.name, e)
+
+        return formatters
 
     @deprecation_decorator(rel='4.0')
     def getSignaller(self):
@@ -213,18 +254,39 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         return taurus.Factory(scheme)
 
     #-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
-    # Popup menu behavior
+    # Context menu behavior
     #-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
     def contextMenuEvent(self, event):
-        """Handle the popup menu event
+        """
+        DEPRECATED:
+        Until v4.5.3a, the default implementation of contextMenuEvent showed
+        the content of taurusMenu as a context menu. But this resulted in
+        unwanted behaviour when the widget already implemented its own context
+        menu (see https://github.com/taurus-org/taurus/issues/905 )
 
-        :param event: the popup menu event
+        Therefore this feature was disabled in 4.5.3a.
+
+        If you still want to show the contents of taurusMenu as a context menu,
+        you can explicitly reimplement the contextMenuEvent method as::
+
+            def contextMenuEvent(self, event):
+                self.taurusMenu.exec_(event.globalPos())
         """
         if self.taurusMenu is not None:
-            self.taurusMenu.exec_(event.globalPos())
-        else:
-            event.ignore()
+            if self.__explicitPopupMenu:
+                # bck-compat: show taurusMenu as a contextMenu if it was
+                # explicitly created via the (deprecated) "setTaurusPopupMenu"
+                # API
+                self.taurusMenu.exec_(event.globalPos())
+                return
+            else:
+                self.deprecated(
+                    dep='taurusMenu context Menu API',
+                    alt='custom contextMenuEvent to show taurusMenu',
+                    rel='4.5.3a'
+                 )
+        event.ignore()
 
     #-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
     # Mandatory methods to be implemented in subclass implementation
@@ -676,12 +738,12 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         """
         if toolTipObj is None:
             return self.getNoneValue()
-        ret = '<TABLE width="500" border="0" cellpadding="1" cellspacing="0">'
+        ret = u'<TABLE width="500" border="0" cellpadding="1" cellspacing="0">'
 
         for id, value in toolTipObj:
-            ret += '<TR><TD WIDTH="80" ALIGN="RIGHT" VALIGN="MIDDLE"><B>%s:</B></TD><TD>%s</TD></TR>' % (
+            ret += u'<TR><TD WIDTH="80" ALIGN="RIGHT" VALIGN="MIDDLE"><B>%s:</B></TD><TD>%s</TD></TR>' % (
                 id.capitalize(), value)
-        ret += '</TABLE>'
+        ret += u'</TABLE>'
         return ret
 
     def displayValue(self, v):
@@ -704,6 +766,7 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         that returns a python format string.
         If a callable is used, it will be called with the following 
         keyword arguments:
+
         - dtype: the data type of the value to be formatted
         - basecomponent: the affected widget
   
@@ -752,7 +815,7 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
             fmt_v = self._format.format(v, bc=self)
         except Exception:
             self.debug("Invalid format %r for %r. Using '{0}'", self._format, v)
-            fmt_v = "{0}".format(v)
+            fmt_v = u"{0}".format(v)
 
         return fmt_v
 
@@ -767,14 +830,14 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         :param kwargs: keyword arguments that will be passed to
                        :attribute:`FORMAT` if it is a callable
         """
-        if not isinstance(self.FORMAT, string_types):
+        if self.FORMAT is None or isinstance(self.FORMAT, string_types):
+            self._format = self.FORMAT
+        else:
             # unbound method to callable
             if isinstance(self.FORMAT, MethodType):
                 self.FORMAT = self.FORMAT.__func__
             self._format = self.FORMAT(dtype=dtype, basecomponent=self,  
                                        **kwargs)
-        else:
-            self._format = self.FORMAT
 
     def setFormat(self, format):
         """ Method to set the `FORMAT` attribute for this instance.
@@ -895,15 +958,11 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
 
     def preAttach(self):
         """Called inside self.attach() before actual attach is performed.
-        Default implementation just emits a signal.
+        Default implementation does nothing.
 
         Override when necessary.
         """
-        try:
-            self.taurusEvent.connect(self.filterEvent)
-        except:
-            # self.error("In %s.preAttach() ... failed!" % str(type(self)))
-            pass
+        pass
 
     def postAttach(self):
         """Called inside self.attach() after actual attach is performed.
@@ -915,15 +974,11 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
 
     def preDetach(self):
         """Called inside self.detach() before actual deattach is performed.
-        Default implementation just disconnects a signal.
+        Default implementation does nothing.
 
         Override when necessary.
         """
-        try:
-            self.taurusEvent.disconnect(self.filterEvent)
-        except:
-            # self.error("In %s.preDetach() ... failed!" % str(type(self)))
-            pass
+        pass
 
     def postDetach(self):
         """Called inside self.detach() after actual deattach is performed.
@@ -996,6 +1051,7 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         restored when calling :meth:`applyConfig`).
         By default this is not enabled.
         The following properties are affected by this:
+
         - "model"
 
         :param yesno: (bool) If True, the model-related properties will be
@@ -1238,14 +1294,18 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         """Resets the showing of the display value to True"""
         self.setShowText(True)
 
+    @deprecation_decorator(rel='4.5.3a')
     def setTaurusPopupMenu(self, menuData):
         """Sets/unsets the taurus popup menu
 
         :param menuData: (str) an xml representing the popup menu"""
         self.taurusMenuData = str(menuData)
+        self.__explicitPopupMenu = True
         factory = ActionFactory()
         self.taurusMenu = factory.getNewMenu(self, self.taurusMenuData)
 
+
+    @deprecation_decorator(rel='4.5.3a')
     def getTaurusPopupMenu(self):
         """Returns an xml string representing the current taurus popup menu
 
@@ -1253,9 +1313,11 @@ class TaurusBaseComponent(TaurusListener, BaseConfigurableClass):
         """
         return self.taurusMenuData
 
+    @deprecation_decorator(rel='4.5.3a')
     def resetTaurusPopupMenu(self):
         """Resets the taurus popup menu to empty"""
         self.taurusMenuData = ''
+        self.__explicitPopupMenu = False
 
     def isModifiableByUser(self):
         '''whether the user can change the contents of the widget
@@ -1306,7 +1368,7 @@ class TaurusBaseWidget(TaurusBaseComponent):
 
     _dragEnabled = False
 
-    def __init__(self, name='', parent=None, designMode=False):
+    def __init__(self, name='', parent=None, designMode=False, **kwargs):
         self._disconnect_on_hide = False
         self._supportedMimeTypes = None
         self._autoTooltip = True
@@ -1314,41 +1376,70 @@ class TaurusBaseWidget(TaurusBaseComponent):
                           parent=parent, designMode=designMode)
         self._setText = self._findSetTextMethod()
 
+    @deprecation_decorator(rel="4.6.2", alt="onSetFormatter")
     def showFormatterDlg(self):
-        """
-        showFormatterDlg show a dialog to get the formatter from the user.
-        :return: formatter: python fromat string or formatter callable
-        (in string version) or None
-        """
-        current_format = self.getFormat()
-
-        formatter, ok = Qt.QInputDialog.getText(self, "Set formatter",
-                                                "Enter a formatter:",
-                                                Qt.QLineEdit.Normal,
-                                                current_format)
-        if ok and formatter:
+        """deprecated because it does not distinguish between a user cancelling
+        the dialog and the user selecting `None` as a formatter."""
+        formatter, ok = self.showFormatterDlg()
+        if not ok:
+            return None
+        else:
             return formatter
 
-        return None
+    def __showFormatterDlg(self):
+        """
+        Shows a dialog to get the formatter from the user.
+
+        :return: formatter: python format string or formatter callable
+        (in string version) or None
+        """
+        # add formatters from plugins
+        known_formatters = TaurusBaseWidget.get_registered_formatters()
+        # add default formatter
+        from taurus import tauruscustomsettings
+        default = getattr(taurus.tauruscustomsettings,
+                          'DEFAULT_FORMATTER',
+                          defaultFormatter)
+        known_formatters['<DEFAULT_FORMATTER>'] = default
+        # add the formatter of this class
+        cls = self.__class__
+        known_formatters['<{}.FORMAT>'.format(cls.__name__)] = cls.FORMAT
+        # add current formatter of this object
+        if self.FORMAT not in known_formatters.values():
+            known_formatters[str(self.FORMAT)] = self.FORMAT
+
+        names, formatters = list(zip(*known_formatters.items()))
+
+        url = ("http://taurus-scada.org/devel/api/taurus/qt/qtgui/base/"
+               + "_TaurusBaseComponent.html")
+
+        choice, ok = Qt.QInputDialog.getItem(
+            self,
+            "Set formatter",
+            'Choose/Enter a formatter (<a href="{}">help</a>)'.format(url),
+            names,
+            current=formatters.index(self.FORMAT),
+            editable=True
+        )
+        if not ok:
+            return None, False
+
+        if choice in names:
+            return known_formatters[choice], True
+        else:
+            return choice, True
 
     def onSetFormatter(self):
         """Slot to allow interactive setting of the Formatter.
 
-        .. seealso:: :meth:`TaurusBaseWidget.showFormatterDlg`,
+        .. seealso:: :meth:`TaurusBaseWidget.__showFormatterDlg`,
                      :meth:`TaurusBaseComponent.displayValue`,
                      :attr:`tauruscustomsettings.DEFAULT_FORMATTER`
         """
-        format = self.showFormatterDlg()
-        if format is not None:
+        format, ok = self.__showFormatterDlg()
+        if ok:
             self.debug(
                 'Default format has been changed to: {0}'.format(format))
-            # -----------------------------------------------------------------
-            # TODO: Tango-centric (replace by agnostic entry point solution)
-            # shortcut to setup the tango formatter
-            if format.strip() == "tangoFormatter":
-                from taurus.core.tango.util.formatter import tangoFormatter
-                format = tangoFormatter
-            # -----------------------------------------------------------------
             self.setFormat(format)
         return format
 
@@ -1727,7 +1818,7 @@ class TaurusBaseWidget(TaurusBaseComponent):
         formats = mimeData.formats()
         for mtype in supported:
             if mtype in formats:
-                d = bytes(mimeData.data(mtype))
+                d = bytes(mimeData.data(mtype)).decode('utf-8')
                 if d is None:
                     return None
                 try:
@@ -1885,6 +1976,7 @@ class TaurusBaseWidget(TaurusBaseComponent):
 
         The dictionary returned by this method should contain *at least* the
         following keys and values:
+
         - 'module' : a string representing the full python module name (ex.: 'taurus.qt.qtgui.base')
         - 'icon' : a string representing valid resource icon (ex.: 'designer:combobox.png')
         - 'container' : a bool telling if this widget is a container widget or not.
@@ -1910,7 +2002,8 @@ class TaurusBaseWritableWidget(TaurusBaseWidget):
 
     applied = baseSignal('applied')
 
-    def __init__(self, name='', taurus_parent=None, designMode=False):
+    def __init__(self, name='', taurus_parent=None, designMode=False,
+                 **kwargs):
         self.call__init__(TaurusBaseWidget, name,
                           parent=taurus_parent, designMode=designMode)
 

@@ -37,6 +37,7 @@ import os
 import sys
 import re
 import unittest
+import click
 import taurus
 from taurus.external.qt import PYQT4
 
@@ -101,16 +102,28 @@ def run(disableLogger=True, exclude_pattern='(?!)'):
     return runner.run(suite)
 
 
-def main(args):
+@click.command('testsuite')
+@click.option(
+    '--gui-tests/--skip-gui-tests', 'gui_tests',
+    default=True, show_default=True,
+    help='Perform tests requiring GUI'
+)
+@click.option(
+    '-e', '--exclude-pattern', 'exclude_pattern',
+    default='(?!)',
+    help="""regexp pattern matching test ids to be excluded.
+    (e.g. 'taurus\.core\..*' would exclude taurus.core tests)
+    """
+)
+def testsuite_cmd(gui_tests, exclude_pattern):
+    """Launch the main test suite for Taurus'"""
     import taurus.test.skip
 
-    if args.skip_gui:
-        import taurus.test.skip
-        taurus.test.skip.GUI_TESTS_ENABLED = False
+    taurus.test.skip.GUI_TESTS_ENABLED = gui_tests
     if not taurus.test.skip.GUI_TESTS_ENABLED:
-        exclude_pattern = '(taurus\.qt\..*)|(%s)' % args.exclude_pattern
+        exclude_pattern = '(taurus\.qt\..*)|(%s)' % exclude_pattern
     else:
-        exclude_pattern = args.exclude_pattern
+        exclude_pattern = exclude_pattern
 
     ret = run(exclude_pattern=exclude_pattern)
 
@@ -142,7 +155,4 @@ def add_parser(make_parser):
 
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
-    parser = add_parser(ArgumentParser)
-    args = parser.parse_args()
-    args.cmd(args)
+    testsuite_cmd()
