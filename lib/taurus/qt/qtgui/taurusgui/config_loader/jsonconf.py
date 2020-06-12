@@ -38,6 +38,16 @@ class JsonConfigLoader(AbstractConfigLoader):
         super(JsonConfigLoader, self).__init__(confname)
         self._data = {}
 
+    def _get_objects(self, klass):
+        """
+        Helper function to get list of Python objects from dictionary
+        """
+        objs = []
+        for o in self._data.get(klass.__name__ + "s", []):  # 's' is for plural form
+            if isinstance(o, dict):
+                objs.append(klass(**o))
+        return objs
+
     def load(self):
         try:
             with open(self._confname, "r") as fp:
@@ -89,32 +99,16 @@ class JsonConfigLoader(AbstractConfigLoader):
 
     @property
     def panels(self):
-        panels = []
-        for p in self._data.get("PanelDescriptions", []):
-            if isinstance(p, dict):
-                panels.append(PanelDescription(**p))
-        return panels
+        return self._get_objects(PanelDescription)
 
     @property
     def toolbars(self):
-        toolbars = []
-        for t in self._data.get("ToolBarDescriptions", []):
-            if isinstance(t, dict):
-                toolbars.append(ToolBarDescription(**t))
-        return toolbars
+        return self._get_objects(ToolBarDescription)
 
     @property
     def applets(self):
-        applets = []
-        for a in self._data.get("AppletDescriptions", []):
-            if isinstance(a, dict):
-                applets.append(AppletDescription(**a))
-        return applets
+        return self._get_objects(AppletDescription)
 
     @property
     def external_apps(self):
-        external_apps = []
-        for e in self._data.get("ExternalApps", []):
-            if isinstance(e, dict):
-                external_apps.append(PanelDescription(**e))
-        return external_apps
+        return self._get_objects(ExternalApp)
