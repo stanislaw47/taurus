@@ -52,7 +52,7 @@ class XmlConfigLoader(AbstractConfigLoader):
         Helper method to get list of objects of given Python class
         """
         objs = []
-        obj = self._root.find(klass.__name__)
+        obj = self._root.find(klass.__name__ + "s")  # 's' is for plural form
         if obj is not None:
             for child in obj:
                 if child.tag == klass.__name__:
@@ -65,7 +65,7 @@ class XmlConfigLoader(AbstractConfigLoader):
     def load(self):
         """
         Get the xml root node from the xml configuration file
-        """       
+        """
         try:
             with open(self._confname, 'r') as xmlFile:
                 self._root = etree.fromstring(xmlFile.read())
