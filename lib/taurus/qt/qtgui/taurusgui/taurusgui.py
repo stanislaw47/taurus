@@ -1010,7 +1010,7 @@ class TaurusGui(TaurusMainWindow):
 
         self._loadExtraCatalogWidgets(conf)
         self._loadManualUri(conf)
-        POOLINSTRUMENTS = self._loadSardanaOptions(conf, xmlroot)
+        POOLINSTRUMENTS = self._loadSardanaOptions(conf)
         self._loadSynoptic(conf)
         # TODO: remove deprecated _loadConsole
         self._loadConsole(conf)
@@ -1095,52 +1095,46 @@ class TaurusGui(TaurusMainWindow):
                              icon=Qt.QIcon.fromTheme('help-browser'))
 
     ### SARDANA MACRO STUFF ON
-    def _loadSardanaOptions(self, conf, xmlroot):
+    def _loadSardanaOptions(self, conf):
         """configure macro infrastructure"""
-        ms = self._loadMacroServerName(conf, xmlroot)
-        mp = self._loadMacroPanels(conf, xmlroot)
+        ms = self._loadMacroServerName(conf)
+        mp = self._loadMacroPanels(conf)
         # macro infrastructure will only be created if MACROSERVER_NAME is set
         if ms is not None and mp is True:
             from sardana.taurus.qt.qtgui.macrolistener import MacroBroker
             self.__macroBroker = MacroBroker(self)
-        self._loadDoorName(conf, xmlroot)
-        self._loadMacroEditorsPath(conf, xmlroot)
-        pool_instruments = self._loadInstrumentsFromPool(conf, xmlroot, ms)
+        self._loadDoorName(conf)
+        self._loadMacroEditorsPath(conf)
+        pool_instruments = self._loadInstrumentsFromPool(conf, ms)
         return pool_instruments
 
-    def _loadMacroServerName(self, conf, xmlroot):
-        macro_server_name = getattr(conf, "MACROSERVER_NAME", self.__getVarFromXML(
-            xmlroot, "MACROSERVER_NAME", None))
+    def _loadMacroServerName(self, conf):
+        macro_server_name = self.getConfigValue(conf, "macroserver_name")
         if macro_server_name:
             self.macroserverNameChanged.emit(macro_server_name)
         return macro_server_name
 
-    def _loadMacroPanels(self, conf, xmlroot):
-        macro_panels = getattr(conf, "MACRO_PANELS", self.__getVarFromXML(
-            xmlroot, "MACRO_PANELS", True))
-        return macro_panels
+    def _loadMacroPanels(self, conf):
+        return self.getConfigValue(conf, "macro_panels", True)
 
-    def _loadDoorName(self, conf, xmlroot):
-        door_name = getattr(conf, "DOOR_NAME",
-                            self.__getVarFromXML(xmlroot, "DOOR_NAME", ''))
+    def _loadDoorName(self, conf):
+        door_name = self.getConfigValue(conf, "door_name", True)
         if door_name:
             self.doorNameChanged.emit(door_name)
 
-    def _loadMacroEditorsPath(self, conf, xmlroot):
-        macro_editors_path = getattr(conf, "MACROEDITORS_PATH", self.__getVarFromXML(
-            xmlroot, "MACROEDITORS_PATH", ""))
+    def _loadMacroEditorsPath(self, conf):
+        macro_editors_path = self.getConfigValue(conf, "macroeditors_path", True)
         if macro_editors_path:
             from sardana.taurus.qt.qtgui.extra_macroexecutor.macroparameterseditor.macroparameterseditor import \
                 ParamEditorManager
             ParamEditorManager().parsePaths(macro_editors_path)
             ParamEditorManager().browsePaths()
 
-    def _loadInstrumentsFromPool(self, conf, xmlroot, macro_server_name):
+    def _loadInstrumentsFromPool(self, conf, macro_server_name):
         """
         Get panel descriptions from pool if required
         """
-        instruments_from_pool = getattr(conf, "INSTRUMENTS_FROM_POOL", (self.__getVarFromXML(
-            xmlroot, "INSTRUMENTS_FROM_POOL", "False").lower() == "true"))
+        instruments_from_pool = self.getConfigValue(conf, "instruments_from_pool", False)
         if instruments_from_pool:
             try:
                 self.splashScreen().showMessage("Gathering Instrument info from Pool")

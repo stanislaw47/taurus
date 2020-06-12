@@ -134,3 +134,30 @@ class AbstractConfigLoader(abc.ABC):
     def monitor(self):
         """Model of Monitor widget"""
         return None
+
+    # SARDANA STUFF ON
+    @abc.abstractproperty
+    def macroserver_name(self):
+        """Name of MacroServer"""
+        return None
+
+    @abc.abstractproperty
+    def macro_panels(self):
+        """Whether to enable Sardana macro panels or not"""
+        return None
+
+    @abc.abstractproperty
+    def door_name(self):
+        """Name of MacroServer's Door"""
+        return None
+
+    @abc.abstractproperty
+    def macroeditors_path(self):
+        """Path to macro editors (?)"""
+        return None
+
+    @abc.abstractproperty
+    def instruments_from_pool(self):
+        """Whether to load instruments from Pool as panels or not"""
+        return None
+    # SARDANA STUFF OFF

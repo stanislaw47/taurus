@@ -121,3 +121,23 @@ class JsonConfigLoader(AbstractConfigLoader):
     @property
     def external_apps(self):
         return self._get_objects(ExternalApp)
+
+    @property
+    def macroserver_name(self):
+        return self._data.get("MACROSERVER_NAME")
+
+    @property
+    def macro_panels(self):
+        return self._data.get("MACRO_PANELS")
+
+    @property
+    def door_name(self):
+        return self._data.get("DOOR_NAME")
+
+    @property
+    def macroeditors_path(self):
+        return self._data.get("MACROEDITORS_PATH")
+
+    @property
+    def instruments_from_pool(self):
+        return self._data.get("INSTRUMENTS_FROM_POOL")

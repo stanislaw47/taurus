@@ -161,3 +161,23 @@ class PyConfigLoader(AbstractConfigLoader):
     @property
     def external_apps(self):
         return self._get_objects(ExternalApp)
+
+    @property
+    def macroserver_name(self):
+        return getattr(self._mod, "MACROSERVER_NAME")
+
+    @property
+    def macro_panels(self):
+        return getattr(self._mod, "MACRO_PANELS")
+
+    @property
+    def door_name(self):
+        return getattr(self._mod, "DOOR_NAME")
+
+    @property
+    def macroeditors_path(self):
+        return getattr(self._mod, "MACROEDITORS_PATH")
+
+    @property
+    def instruments_from_pool(self):
+        return getattr(self._mod, "INSTRUMENTS_FROM_POOL")
