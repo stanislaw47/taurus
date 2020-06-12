@@ -24,6 +24,7 @@
 """"""
 
 import json
+import os
 
 from ..utils import PanelDescription, ToolBarDescription, AppletDescription, ExternalApp
 from .abstract import AbstractConfigLoader, ConfigLoaderError
@@ -56,6 +57,10 @@ class JsonConfigLoader(AbstractConfigLoader):
             raise ConfigLoaderError("Problem with accessing config file: " + str(e))
         except ValueError as e:
             raise ConfigLoaderError("Problem with config file decoding: " + str(e))
+
+    @property
+    def conf_dir(self):
+        return os.path.abspath(os.path.dirname(self._confname))
 
     @property
     def app_name(self):

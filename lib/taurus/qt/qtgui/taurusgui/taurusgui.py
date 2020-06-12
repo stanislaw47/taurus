@@ -988,7 +988,9 @@ class TaurusGui(TaurusMainWindow):
         '''Reads a configuration file
         '''
         try:
-            conf = getLoader(confname).load()
+            conf = getLoader(confname)
+            conf.load()
+            self._confDirectory = conf.conf_dir
         except Exception:
             import traceback
             msg = 'Error loading configuration: %s' % traceback.format_exc()  # repr(e)

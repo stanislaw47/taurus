@@ -99,6 +99,10 @@ class PyConfigLoader(AbstractConfigLoader):
             self._mod = self._importConfiguration()
 
     @property
+    def conf_dir(self):
+        return os.path.abspath(os.path.dirname(self._mod.__file__))
+
+    @property
     def app_name(self):
         return getattr(self._mod, 'GUI_NAME')
 

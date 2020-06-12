@@ -23,6 +23,8 @@
 
 """"""
 
+import os
+
 from lxml import etree
 
 from ..utils import PanelDescription, ToolBarDescription, AppletDescription, ExternalApp
@@ -74,6 +76,10 @@ class XmlConfigLoader(AbstractConfigLoader):
         except Exception as e:
             msg = 'Error reading the XML file: "%s"' % self._confname
             raise ConfigLoaderError(msg)
+
+    @property
+    def conf_dir(self):
+        return os.path.abspath(os.path.dirname(self._confname))
 
     @property
     def app_name(self):
