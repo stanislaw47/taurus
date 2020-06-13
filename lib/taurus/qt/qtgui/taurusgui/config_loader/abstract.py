@@ -26,7 +26,7 @@ import abc
 
 # Python 2/3 compatibility
 if not hasattr(abc, "ABC"):
-    setattr(abc, "ABC", abc.ABCMeta('ABC', (object,), {}))
+    setattr(abc, "ABC", abc.ABCMeta("ABC", (object,), {}))
 
 
 __all__ = ["AbstractConfigLoader", "ConfigLoaderError"]
@@ -36,6 +36,7 @@ class ConfigLoaderError(Exception):
     """
     Base exception raised by ConfigLoader
     """
+
     def __init__(self, message):
         message = "Exception raised while loading configuration: " + message
         super(ConfigLoaderError, self).__init__(message)
@@ -168,4 +169,5 @@ class AbstractConfigLoader(abc.ABC):
     def instruments_from_pool(self):
         """Whether to load instruments from Pool as panels or not"""
         return None
+
     # SARDANA STUFF OFF

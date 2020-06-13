@@ -50,22 +50,29 @@ def getLoader(confname):
             # happy path, we got file
             if ext == ".py":
                 from .pyconf import PyConfigLoader
+
                 return PyConfigLoader(confname)
             elif ext == ".xml":
                 from .xmlconf import XmlConfigLoader
+
                 return XmlConfigLoader(confname)
             elif ext == ".json":
                 from .jsonconf import JsonConfigLoader
+
                 return JsonConfigLoader(confname)
             else:
-                raise NotImplementedError("Not supported config file format: '%s'" % ext)
+                raise NotImplementedError(
+                    "Not supported config file format: '%s'" % ext
+                )
         elif os.path.isdir(confname):
             # if it's directory, assume it's importable Python package
             from .pyconf import PyConfigLoader
+
             return PyConfigLoader(confname)
         else:
             raise ValueError("Not file or directory: '%s'" % confname)
     else:
         # not path, assume it's importable Python package path
         from .pyconf import PyConfigLoader
+
         return PyConfigLoader(confname)

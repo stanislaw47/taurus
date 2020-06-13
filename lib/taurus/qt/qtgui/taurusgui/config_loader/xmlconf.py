@@ -28,9 +28,15 @@ import os
 from lxml import etree
 
 from taurus.qt.qtgui.taurusgui.utils import (
-    PanelDescription, ToolBarDescription, AppletDescription, ExternalApp)
+    PanelDescription,
+    ToolBarDescription,
+    AppletDescription,
+    ExternalApp,
+)
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader, ConfigLoaderError)
+    AbstractConfigLoader,
+    ConfigLoaderError,
+)
 
 
 __all__ = ["XmlConfigLoader"]
@@ -43,7 +49,7 @@ class XmlConfigLoader(AbstractConfigLoader):
 
     def __init__(self, confname):
         super(XmlConfigLoader, self).__init__(confname)
-        self._root = etree.fromstring('<root></root>')
+        self._root = etree.fromstring("<root></root>")
 
     def _get(self, nodename, default=None):
         """
@@ -64,7 +70,7 @@ class XmlConfigLoader(AbstractConfigLoader):
         if obj is not None:
             for child in obj:
                 if child.tag == klass.__name__:
-                    child_str = etree.tostring(child, encoding='unicode')
+                    child_str = etree.tostring(child, encoding="unicode")
                     o = klass.fromXml(child_str)
                     if o is not None:
                         objs.append(o)
@@ -75,10 +81,12 @@ class XmlConfigLoader(AbstractConfigLoader):
         Get the xml root node from the xml configuration file
         """
         try:
-            with open(self._confname, 'r') as xmlFile:
+            with open(self._confname, "r") as xmlFile:
                 self._root = etree.fromstring(xmlFile.read())
         except IOError as e:
-            raise ConfigLoaderError("Problem with accessing config file: " + str(e))
+            raise ConfigLoaderError(
+                "Problem with accessing config file: " + str(e)
+            )
         except Exception as e:
             msg = 'Error reading the XML file: "%s"' % self._confname
             raise ConfigLoaderError(msg)

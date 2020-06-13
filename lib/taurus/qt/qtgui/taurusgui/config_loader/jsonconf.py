@@ -27,9 +27,15 @@ import json
 import os
 
 from taurus.qt.qtgui.taurusgui.utils import (
-    PanelDescription, ToolBarDescription, AppletDescription, ExternalApp)
+    PanelDescription,
+    ToolBarDescription,
+    AppletDescription,
+    ExternalApp,
+)
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader, ConfigLoaderError)
+    AbstractConfigLoader,
+    ConfigLoaderError,
+)
 
 
 __all__ = ["JsonConfigLoader"]
@@ -49,7 +55,8 @@ class JsonConfigLoader(AbstractConfigLoader):
         Helper function to get list of Python objects from dictionary
         """
         objs = []
-        for o in self._data.get(klass.__name__ + "s", []):  # 's' is for plural form
+        classname = klass.__name__ + "s"  # 's' is for plural form
+        for o in self._data.get(classname, []):
             if isinstance(o, dict):
                 objs.append(klass(**o))
         return objs
@@ -59,9 +66,13 @@ class JsonConfigLoader(AbstractConfigLoader):
             with open(self._confname, "r") as fp:
                 self._data = json.load(fp)
         except IOError as e:
-            raise ConfigLoaderError("Problem with accessing config file: " + str(e))
+            raise ConfigLoaderError(
+                "Problem with accessing config file: " + str(e)
+            )
         except ValueError as e:
-            raise ConfigLoaderError("Problem with config file decoding: " + str(e))
+            raise ConfigLoaderError(
+                "Problem with config file decoding: " + str(e)
+            )
 
     @property
     def conf_dir(self):
