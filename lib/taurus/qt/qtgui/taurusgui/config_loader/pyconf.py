@@ -44,11 +44,12 @@ class PyConfigLoader(AbstractConfigLoader):
 
     def __init__(self, confname):
         super(PyConfigLoader, self).__init__(confname)
-        self._mod = types.ModuleType('__dummy_conf_module_%s__' %s confname)  # dummy module
+        self._mod = types.ModuleType('__dummy_conf_module_%s__' % confname)  # dummy module
 
     def _get_objects(self, klass):
         objs = [obj for name, obj in inspect.getmembers(self._mod)
                 if isinstance(obj, klass)]
+        return objs
 
     def _importConfiguration(self):
         '''returns the module corresponding to `confname` or to
@@ -96,8 +97,7 @@ class PyConfigLoader(AbstractConfigLoader):
             name, _ = os.path.splitext(name)
             try:
                 f, filename, data = imp.find_module(name, [path])
-                conf = imp.load_module(name, f, filename, data)
-                confname = name
+                self._mod = imp.load_module(name, f, filename, data)
             except ImportError:
                 self._mod = self._importConfiguration()
         else:  # if confname is not a dir name, we assume it is a module name in the python path
