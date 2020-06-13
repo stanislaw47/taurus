@@ -135,24 +135,5 @@ def testsuite_cmd(gui_tests, exclude_pattern):
     sys.exit(exit_code)
 
 
-def add_parser(make_parser):
-    parser = make_parser(description='Main test suite for Taurus')
-    parser.add_argument('--skip-gui-tests', dest='skip_gui',
-                        action='store_true', default=False,
-                        help='Do not perform tests requiring GUI')
-    # TODO: Define the default exclude patterns as a tauruscustomsettings
-    # variable.
-    help = """regexp pattern matching test ids to be excluded.
-    (e.g. 'taurus\.core\..*' would exclude taurus.core tests)
-    """
-    parser.add_argument('-e', '--exclude-pattern',
-                        default='(?!)',
-                        help=help)
-
-    parser.set_defaults(cmd=main)
-
-    return parser
-
-
 if __name__ == '__main__':
     testsuite_cmd()
