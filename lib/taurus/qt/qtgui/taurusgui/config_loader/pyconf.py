@@ -146,7 +146,11 @@ class PyConfigLoader(AbstractConfigLoader):
 
     @property
     def monitor(self):
-        return getattr(self._mod, 'MONITOR')
+        return AppletDescription(
+            "monitor",
+            classname="TaurusMonitorTiny",
+            model=getattr(self._mod, 'MONITOR'),
+        )
 
     @property
     def panels(self):

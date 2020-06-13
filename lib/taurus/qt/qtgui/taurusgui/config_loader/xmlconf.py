@@ -136,7 +136,11 @@ class XmlConfigLoader(AbstractConfigLoader):
 
     @property
     def monitor(self):
-        return self._get("MONITOR")
+        return AppletDescription(
+            "monitor",
+            classname="TaurusMonitorTiny",
+            model=self._get("MONITOR"),
+        )
 
     @property
     def panels(self):

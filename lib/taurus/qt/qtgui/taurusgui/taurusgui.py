@@ -45,8 +45,7 @@ from taurus.qt.qtcore.communication import SharedDataManager
 from taurus.qt.qtgui.util import TaurusWidgetFactory
 from taurus.qt.qtgui.base import TaurusBaseWidget, TaurusBaseComponent
 from taurus.qt.qtgui.container import TaurusMainWindow
-from taurus.qt.qtgui.taurusgui.utils import (ExternalApp, PanelDescription,
-                                             AppletDescription)
+from taurus.qt.qtgui.taurusgui.utils import ExternalApp, PanelDescription
 from taurus.qt.qtgui.util.ui import UILoadable
 from taurus.qt.qtgui.taurusgui.utils import ExternalAppAction
 from taurus.core.util.log import deprecation_decorator
@@ -1280,10 +1279,9 @@ class TaurusGui(TaurusMainWindow):
         """
         custom_applets = conf.applets[:]
         # for backwards compatibility
-        MONITOR = self.getConfigValue(conf, "monitor", [])
-        if MONITOR:
-            custom_applets.append(AppletDescription(
-                "monitor", classname="TaurusMonitorTiny", model=MONITOR))
+        monitor = self.getConfigValue(conf, "monitor", [])
+        if monitor:
+            custom_applets.append(monitor)
 
         for d in custom_applets:
             try:

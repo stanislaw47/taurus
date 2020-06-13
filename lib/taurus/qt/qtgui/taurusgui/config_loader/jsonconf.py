@@ -106,7 +106,11 @@ class JsonConfigLoader(AbstractConfigLoader):
 
     @property
     def monitor(self):
-        return self._data.get("MONITOR")
+        return AppletDescription(
+            "monitor",
+            classname="TaurusMonitorTiny",
+            model=self._data.get("MONITOR"),
+        )
 
     @property
     def panels(self):

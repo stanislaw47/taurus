@@ -132,7 +132,10 @@ class AbstractConfigLoader(abc.ABC):
     # deprecated
     @abc.abstractproperty
     def monitor(self):
-        """Model of Monitor widget"""
+        """
+        ApplicationDescription object with TaurusTinyMonitor widget
+        and model set from config
+        """
         return None
 
     # SARDANA STUFF ON
