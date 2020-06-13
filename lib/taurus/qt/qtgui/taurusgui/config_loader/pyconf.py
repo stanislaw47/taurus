@@ -28,8 +28,10 @@ import sys
 import types
 import inspect
 
-from ..utils import PanelDescription, AppletDescription, ToolBarDescription, ExternalApp
-from .abstract import AbstractConfigLoader, ConfigLoaderError
+from taurus.qt.qtgui.taurusgui.utils import (
+    PanelDescription, AppletDescription, ToolBarDescription, ExternalApp)
+from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
+    AbstractConfigLoader, ConfigLoaderError)
 
 
 __all__ = ["PyConfigLoader"]
