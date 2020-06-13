@@ -33,7 +33,6 @@ import sys
 import copy
 import click
 import weakref
-import inspect
 
 from future.utils import string_types
 from lxml import etree
@@ -47,7 +46,6 @@ from taurus.qt.qtgui.util import TaurusWidgetFactory
 from taurus.qt.qtgui.base import TaurusBaseWidget, TaurusBaseComponent
 from taurus.qt.qtgui.container import TaurusMainWindow
 from taurus.qt.qtgui.taurusgui.utils import (ExternalApp, PanelDescription,
-                                             ToolBarDescription,
                                              AppletDescription)
 from taurus.qt.qtgui.util.ui import UILoadable
 from taurus.qt.qtgui.taurusgui.utils import ExternalAppAction
