@@ -21,7 +21,12 @@
 ##
 ###########################################################################
 
-""""""
+"""
+This module provides factory 'getLoader' for proper ConfigLoader object
+detected from 'confname' string. Each config loader has to implement interface
+defined by AbstractConfigLoader class in
+taurus.qt.qtgui.taurusgui.config_loader.abstract
+"""
 
 import os
 
@@ -30,6 +35,14 @@ __all__ = ["getLoader"]
 
 
 def getLoader(confname):
+    """
+    Discover proper config loader based on passed string.
+    It can be either path to file or directory or Python
+    abolute path to module with configuration.
+
+    :param confname: name of configuration
+    :return: A AbstractConfigLoader subclass object
+    """
 
     if os.path.exists(confname):
         if os.path.isfile(confname):

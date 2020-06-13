@@ -38,6 +38,9 @@ __all__ = ["PyConfigLoader"]
 
 
 class PyConfigLoader(AbstractConfigLoader):
+    """
+    Loads configuration for TaurusGui from Python module or package
+    """
 
     def __init__(self, confname):
         super(PyConfigLoader, self).__init__(confname)

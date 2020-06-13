@@ -37,6 +37,10 @@ __all__ = ["XmlConfigLoader"]
 
 
 class XmlConfigLoader(AbstractConfigLoader):
+    """
+    Loads configuration for TaurusGui from XML file
+    """
+
     def __init__(self, confname):
         super(XmlConfigLoader, self).__init__(confname)
         self._root = etree.fromstring('<root></root>')

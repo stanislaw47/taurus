@@ -33,6 +33,9 @@ __all__ = ["AbstractConfigLoader", "ConfigLoaderError"]
 
 
 class ConfigLoaderError(Exception):
+    """
+    Base exception raised by ConfigLoader
+    """
     def __init__(self, message):
         message = "Exception raised while loading configuration: " + message
         super(ConfigLoaderError, self).__init__(message)
@@ -40,7 +43,9 @@ class ConfigLoaderError(Exception):
 
 class AbstractConfigLoader(abc.ABC):
     """
-    Abstract class for config loaders
+    Abstract class for config loaders.
+    It defines interface which has to be implemneted by subclass in
+    order for it to be ConfigLoader
     """
 
     def __init__(self, confname):

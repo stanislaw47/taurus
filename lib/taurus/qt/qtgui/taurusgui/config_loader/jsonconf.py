@@ -36,6 +36,9 @@ __all__ = ["JsonConfigLoader"]
 
 
 class JsonConfigLoader(AbstractConfigLoader):
+    """
+    Loads configuration for TaurusGui from JSON file
+    """
 
     def __init__(self, confname):
         super(JsonConfigLoader, self).__init__(confname)
