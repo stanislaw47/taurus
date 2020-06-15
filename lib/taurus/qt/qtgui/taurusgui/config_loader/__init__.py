@@ -30,6 +30,8 @@ taurus.qt.qtgui.taurusgui.config_loader.abstract
 
 import os
 
+import pkg_resources
+
 
 __all__ = ["getLoader"]
 
@@ -45,25 +47,19 @@ def getLoader(confname):
     """
 
     if os.path.exists(confname):
-        if os.path.isfile(confname):
-            ext = os.path.splitext(confname)[-1]
-            # happy path, we got file
-            if ext == ".py":
-                from .pyconf import PyConfigLoader
+        if os.path.isfile(confname):  # happy path, we got file
 
-                return PyConfigLoader(confname)
-            elif ext == ".xml":
-                from .xmlconf import XmlConfigLoader
+            # get file extension without dot
+            ext = os.path.splitext(confname)[-1][1:]
 
-                return XmlConfigLoader(confname)
-            elif ext == ".json":
-                from .jsonconf import JsonConfigLoader
-
-                return JsonConfigLoader(confname)
-            else:
+            klass = _get_plugin_from_entrypoint(ext, "taurus.gui.loader")
+            if klass is None:
                 raise NotImplementedError(
                     "Not supported config file format: '%s'" % ext
                 )
+            else:
+                return klass(confname)
+
         elif os.path.isdir(confname):
             # if it's directory, assume it's importable Python package
             from .pyconf import PyConfigLoader
@@ -76,3 +72,20 @@ def getLoader(confname):
         from .pyconf import PyConfigLoader
 
         return PyConfigLoader(confname)
+
+
+def _get_plugin_from_entrypoint(name, entry_point):
+    """
+    Load value of entry point as plugin.
+    Exceptions are not caught on purpose - propagate them up the stack.
+
+    :param name: name of plugin
+    :param entry_point: dotted name of entry-point loading space
+    :return: entry point value if found, None otherwise
+    """
+
+    for ep in pkg_resources.iter_entry_points(entry_point):
+        if ep.name == name:
+            ep_value = ep.load()
+            return ep_value
+    return None

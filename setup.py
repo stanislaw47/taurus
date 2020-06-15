@@ -125,11 +125,18 @@ formatters = [
     '{:.5f} = taurus.qt.qtgui.base:floatFormatter',
 ]
 
+config_loaders = [
+    'py = taurus.qt.qtgui.taurusgui.config_loaders.pyconf:PyConfigLoader',
+    'json = taurus.qt.qtgui.taurusgui.config_loaders.jsonconf:JsonConfigLoader',
+    'xml = taurus.qt.qtgui.taurusgui.config_loaders.xmlconf:XmlConfigLoader',
+]
+
 entry_points = {
     'console_scripts': console_scripts,
     'taurus.cli.subcommands': taurus_subcommands,
     'taurus.qt.qtgui.panel.TaurusModelSelector.items': model_selectors,
     'taurus.qt.formatters': formatters,
+    'taurus.gui.loaders': config_loaders,
 }
 
 classifiers = [
