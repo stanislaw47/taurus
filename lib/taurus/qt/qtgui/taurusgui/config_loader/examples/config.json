@@ -1,0 +1,69 @@
+{
+	"GUI_NAME": "EXAMPLE 01",
+	"ORGANIZATION": "Taurus",
+	"MANUAL_URI": "http://www.taurus-scada.org",
+	"SYNOPTIC": ["images/example01.jdw", "images/syn2.jdw"],
+	"INSTRUMENTS_FROM_POOL": false,
+	"PanelDescriptions": [
+		{
+			"name": "NeXus Browser",
+			"classname": "taurus.qt.qtgui.extra_nexus.TaurusNeXusBrowser"
+		},
+		{
+			"name": "BigInstrument",
+			"classname": "taurus.qt.qtgui.panel.TaurusAttrForm",
+			"model": "sys/tg_test/1"
+		},
+		{
+			"name": "NeXus Browser",
+			"classname": "taurus.qt.qtgui.extra_nexus.TaurusNeXusBrowser"
+		},
+		{
+			"name": "instrument1",
+			"classname": "taurus.qt.qtgui.panel.TaurusForm",
+			"model": [
+				"sys/tg_test/1/double_scalar",
+				"sys/tg_test/1/short_scalar_ro",
+				"sys/tg_test/1/float_spectrum_ro",
+				"sys/tg_test/1/double_spectrum"
+			]
+		},
+		{
+			"name": "instrument2",
+			"classname": "taurus.qt.qtgui.panel.TaurusForm",
+			"model": [
+				"sys/tg_test/1/wave",
+				"sys/tg_test/1/boolean_scalar"
+			]
+		},
+		{
+			"name": "Selected Instrument",
+			"classname": "taurus.external.qt.Qt.QLineEdit",
+		    "sharedDataRead": {
+		    	"SelectedInstrument": "setText"
+		    },
+		    "sharedDataWrite": {
+		    	"SelectedInstrument": "textEdited"
+		    }
+		}
+	],
+	"ToolBarDescriptions": [
+		{
+			"name": "Empty Toolbar",
+			"classname": "taurus.external.qt.Qt.QToolBar"
+		}
+	],
+	"ExternalApps": [
+		{
+			"name": "xterm",
+			"cmdargs": ["xterm", "spock"],
+			"text": "Spock",
+			"icon": "utilities-terminal"
+		}
+	],
+	"EXTRA_CATALOG_WIDGETS": [
+		["taurus.external.qt.Qt.QLineEdit", "logos:taurus.png"],
+		["taurus.external.qt.Qt.QSpinBox", "images/syn2.jpg"],
+		["taurus.external.qt.Qt.QLabel", null]
+	]
+}
