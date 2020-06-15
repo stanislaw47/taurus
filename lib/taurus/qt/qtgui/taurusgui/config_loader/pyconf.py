@@ -122,31 +122,31 @@ class PyConfigLoader(AbstractConfigLoader):
 
     @property
     def app_name(self):
-        return getattr(self._mod, "GUI_NAME")
+        return getattr(self._mod, "GUI_NAME", None)
 
     @property
     def org_name(self):
-        return getattr(self._mod, "ORGANIZATION")
+        return getattr(self._mod, "ORGANIZATION", None)
 
     @property
     def custom_logo(self):
-        return getattr(self._mod, "CUSTOM_LOGO")
+        return getattr(self._mod, "CUSTOM_LOGO", None)
 
     @property
     def org_logo(self):
-        return getattr(self._mod, "ORGANIZATION_LOGO")
+        return getattr(self._mod, "ORGANIZATION_LOGO", None)
 
     @property
     def single_instance(self):
-        return getattr(self._mod, "SINGLE_INSTANCE")
+        return getattr(self._mod, "SINGLE_INSTANCE", None)
 
     @property
     def manual_uri(self):
-        return getattr(self._mod, "MANUAL_URI")
+        return getattr(self._mod, "MANUAL_URI", None)
 
     @property
     def ini_file(self):
-        return getattr(self._mod, "INIFILE")
+        return getattr(self._mod, "INIFILE", None)
 
     @property
     def extra_catalog_widgets(self):
@@ -186,20 +186,20 @@ class PyConfigLoader(AbstractConfigLoader):
 
     @property
     def macroserver_name(self):
-        return getattr(self._mod, "MACROSERVER_NAME")
+        return getattr(self._mod, "MACROSERVER_NAME", None)
 
     @property
     def macro_panels(self):
-        return getattr(self._mod, "MACRO_PANELS")
+        return getattr(self._mod, "MACRO_PANELS", None)
 
     @property
     def door_name(self):
-        return getattr(self._mod, "DOOR_NAME")
+        return getattr(self._mod, "DOOR_NAME", None)
 
     @property
     def macroeditors_path(self):
-        return getattr(self._mod, "MACROEDITORS_PATH")
+        return getattr(self._mod, "MACROEDITORS_PATH", None)
 
     @property
     def instruments_from_pool(self):
-        return getattr(self._mod, "INSTRUMENTS_FROM_POOL")
+        return getattr(self._mod, "INSTRUMENTS_FROM_POOL", None)
