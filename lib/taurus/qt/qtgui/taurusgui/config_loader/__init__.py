@@ -52,7 +52,7 @@ def getLoader(confname):
             # get file extension without dot
             ext = os.path.splitext(confname)[-1][1:]
 
-            klass = _get_plugin_from_entrypoint(ext, "taurus.gui.loader")
+            klass = _get_plugin_from_entrypoint(ext, "taurus.gui.loaders")
             if klass is None:
                 raise NotImplementedError(
                     "Not supported config file format: '%s'" % ext
