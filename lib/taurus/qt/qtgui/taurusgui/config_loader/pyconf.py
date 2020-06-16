@@ -87,7 +87,8 @@ class PyConfigLoader(AbstractConfigLoader):
             sys.path = oldpath  # restore the previous sys.path
         return mod
 
-    def supports(self, confname):
+    @staticmethod
+    def supports(confname):
         if os.path.exists(confname):
             if os.path.isfile(confname):  # happy path, we got file
                 ext = os.path.splitext(confname)[-1]

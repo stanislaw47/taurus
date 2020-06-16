@@ -76,7 +76,8 @@ class XmlConfigLoader(AbstractConfigLoader):
                         objs.append(o)
         return objs
 
-    def supports(self, confname):
+    @staticmethod
+    def supports(confname):
         if os.path.isfile(confname):
             ext = os.path.splitext(confname)[-1]
             if ext == ".xml":
