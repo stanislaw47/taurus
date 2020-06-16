@@ -24,6 +24,7 @@
 """"""
 
 import os
+import pkgutil
 import sys
 import types
 import inspect
@@ -85,6 +86,24 @@ class PyConfigLoader(AbstractConfigLoader):
         finally:
             sys.path = oldpath  # restore the previous sys.path
         return mod
+
+    def supports(self, confname):
+        if os.path.exists(confname):
+            if os.path.isfile(confname):  # happy path, we got file
+                ext = os.path.splitext(confname)[-1]
+                if ext == ".py":
+                    return True
+                return False
+
+            elif os.path.isdir(confname):
+                # if it's directory, assume it's importable Python package
+                return True
+            return False
+        else:
+            # not exisitng path, check if it is in top-level modules
+            if confname in list(pkgutil.iter_modules()):
+                return True
+            return False
 
     def load(self):
         """Reads a configuration file

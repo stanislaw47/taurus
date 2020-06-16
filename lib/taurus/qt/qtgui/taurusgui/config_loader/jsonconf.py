@@ -61,6 +61,13 @@ class JsonConfigLoader(AbstractConfigLoader):
                 objs.append(klass(**o))
         return objs
 
+    def supports(self, confname):
+        if os.path.isfile(confname):
+            ext = os.path.splitext(confname)[-1]
+            if ext == ".json":
+                return True
+        return False
+
     def load(self):
         try:
             with open(self._confname, "r") as fp:

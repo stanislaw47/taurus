@@ -76,6 +76,13 @@ class XmlConfigLoader(AbstractConfigLoader):
                         objs.append(o)
         return objs
 
+    def supports(self, confname):
+        if os.path.isfile(confname):
+            ext = os.path.splitext(confname)[-1]
+            if ext == ".xml":
+                return True
+        return False
+
     def load(self):
         """
         Get the xml root node from the xml configuration file
