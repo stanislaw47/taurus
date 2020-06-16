@@ -53,6 +53,13 @@ class AbstractConfigLoader(abc.ABC):
         self._confname = confname
 
     @abc.abstractmethod
+    def supports(self, confname):
+        """
+        Return True or False for support of specific configuration passed
+        """
+        return None
+
+    @abc.abstractmethod
     def load(self):
         """
         This method is meant to load actual data from file on disk
