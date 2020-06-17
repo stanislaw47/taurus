@@ -1143,10 +1143,12 @@ class TaurusGui(TaurusMainWindow):
         get custom panel descriptions from the python config file, xml config and
         create panels based on the panel descriptions
         """
+        if poolinstruments is None:
+            custom_panels = conf["PanelDescriptions"]
+        else:
+            custom_panels = poolinstruments
 
-        custom_panels = conf["PanelDescriptions"]
-
-        for p in custom_panels + poolinstruments:
+        for p in custom_panels:
             try:
                 try:
                     self.splashScreen().showMessage("Creating panel %s" % p.name)
@@ -1192,7 +1194,8 @@ class TaurusGui(TaurusMainWindow):
                 icon = p.icon
                 # the pool instruments may change when the pool config changes,
                 # so we do not store their config
-                registerconfig = p not in poolinstruments
+                if poolinstruments is None:
+                    registerconfig = False
                 # create a panel
 
                 self.createPanel(
