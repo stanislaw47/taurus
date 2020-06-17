@@ -26,16 +26,12 @@ import sys
 
 import taurus
 from taurus.external.qt import Qt
-from taurus.qt.qtgui.taurusgui.utils import AppletDescription
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
 )
-from taurus.qt.qtgui.taurusgui.config_loader.pyconf import (
-    PyConfigLoader
-)
-from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import (
-    XmlConfigLoader
-)
+from taurus.qt.qtgui.taurusgui.config_loader.pyconf import PyConfigLoader
+from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import XmlConfigLoader
+from taurus.qt.qtgui.taurusgui.utils import AppletDescription
 
 __all__ = ["BckCompatConfigLoader"]
 
@@ -49,7 +45,9 @@ class BckCompatConfigLoader(AbstractConfigLoader):
 
     @staticmethod
     def supports(confname):
-        return PyConfigLoader.supports(confname) or XmlConfigLoader.supports(confname)
+        return PyConfigLoader.supports(confname) or XmlConfigLoader.supports(
+            confname
+        )
 
     def load(self):
         tmp = {}
@@ -94,8 +92,12 @@ class BckCompatConfigLoader(AbstractConfigLoader):
             msg = "Cannot add applet 'monitor'"
             gui.error(msg)
             gui.traceback(level=taurus.Info)
-            result = Qt.QMessageBox.critical(gui, "Initialization error", "%s\n\n%s" % (
-                msg, repr(e)), Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore)
+            result = Qt.QMessageBox.critical(
+                gui,
+                "Initialization error",
+                "%s\n\n%s" % (msg, repr(e)),
+                Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore,
+            )
             if result == Qt.QMessageBox.Abort:
                 sys.exit()
 
@@ -109,16 +111,24 @@ class BckCompatConfigLoader(AbstractConfigLoader):
         if not gui.getConfigValue(conf, "CONSOLE", []):
             return
 
-        msg = ('createConsole() and the "CONSOLE" configuration key are ' +
-               'deprecated since 4.0.4. Add a panel with a ' +
-               'silx.gui.console.IPythonWidget  widdget instead')
+        msg = (
+            "createConsole() and the 'CONSOLE' configuration key are "
+            + "deprecated since 4.0.4. Add a panel with a "
+            + "silx.gui.console.IPythonWidget  widdget instead"
+        )
         gui.deprecated(msg)
         try:
             from silx.gui.console import IPythonWidget
         except ImportError:
-            gui.warning('Cannot import taurus.qt.qtgui.console. ' +
-                         'The Console Panel will not be available')
+            gui.warning(
+                "Cannot import taurus.qt.qtgui.console. "
+                + "The Console Panel will not be available"
+            )
             return
         console = IPythonWidget()
-        gui.createPanel(console, "Console", permanent=True,
-                         icon=Qt.QIcon.fromTheme('utilities-terminal'))
+        gui.createPanel(
+            console,
+            "Console",
+            permanent=True,
+            icon=Qt.QIcon.fromTheme("utilities-terminal"),
+        )

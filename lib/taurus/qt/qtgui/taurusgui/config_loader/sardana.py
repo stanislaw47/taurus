@@ -27,11 +27,9 @@ import sys
 
 import taurus
 from taurus.external.qt import Qt
+from taurus.qt.qtgui.taurusgui.config_loader.abstract import \
+    AbstractConfigLoader
 from taurus.qt.qtgui.taurusgui.utils import PanelDescription
-from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader,
-)
-
 
 __all__ = ["SardanaConfigLoader"]
 
@@ -65,7 +63,13 @@ class SardanaConfigLoader(AbstractConfigLoader):
 
     @property
     def hooks(self):
-        return self._loadMacroServerName, self._loadMacroBroker, self._loadDoorName, self._loadMacroEditorsPath, self._loadInstrumentsFromPool
+        return (
+            self._loadMacroServerName,
+            self._loadMacroBroker,
+            self._loadDoorName,
+            self._loadMacroEditorsPath,
+            self._loadInstrumentsFromPool,
+        )
 
     @staticmethod
     def _loadMacroServerName(gui, conf):
@@ -82,6 +86,7 @@ class SardanaConfigLoader(AbstractConfigLoader):
         # macro infrastructure will only be created if MACROSERVER_NAME is set
         if ms is not None and mp is True:
             from sardana.taurus.qt.qtgui.macrolistener import MacroBroker
+
             gui.__macroBroker = MacroBroker(gui)
 
     @staticmethod
@@ -92,10 +97,14 @@ class SardanaConfigLoader(AbstractConfigLoader):
 
     @staticmethod
     def _loadMacroEditorsPath(gui, conf):
-        macro_editors_path = gui.getConfigValue(conf, "MACRO_EDITORS_PATH", True)
+        macro_editors_path = gui.getConfigValue(
+            conf, "MACRO_EDITORS_PATH", True
+        )
         if macro_editors_path:
-            from sardana.taurus.qt.qtgui.extra_macroexecutor.macroparameterseditor.macroparameterseditor import \
-                ParamEditorManager
+            from sardana.taurus.qt.qtgui.extra_macroexecutor.macroparameterseditor.macroparameterseditor import (
+                ParamEditorManager,
+            )
+
             ParamEditorManager().parsePaths(macro_editors_path)
             ParamEditorManager().browsePaths()
 
@@ -103,16 +112,22 @@ class SardanaConfigLoader(AbstractConfigLoader):
         """
         Get panel descriptions from pool if required
         """
-        #todo: needs heavy refactor
+        # todo: needs heavy refactor
         ms = gui.getConfigValue(conf, "MACROSERVER_NAME")
 
-        instruments_from_pool = gui.getConfigValue(conf, "INSTRUMENTS_FROM_POOL", False)
+        instruments_from_pool = gui.getConfigValue(
+            conf, "INSTRUMENTS_FROM_POOL", False
+        )
         if instruments_from_pool:
             try:
-                gui.splashScreen().showMessage("Gathering Instrument info from Pool")
+                gui.splashScreen().showMessage(
+                    "Gathering Instrument info from Pool"
+                )
             except AttributeError:
                 pass
-            pool_instruments = self.createInstrumentsFromPool(ms)  # auto create instruments from pool
+            pool_instruments = self.createInstrumentsFromPool(
+                ms
+            )  # auto create instruments from pool
         else:
             pool_instruments = []
 
@@ -122,48 +137,60 @@ class SardanaConfigLoader(AbstractConfigLoader):
 
     @staticmethod
     def createInstrumentsFromPool(gui, macroservername):
-        '''
+        """
         Creates a list of instrument panel descriptions by gathering the info
         from the Pool. Each panel is a TaurusForm grouping together all those
         elements that belong to the same instrument according to the Pool info
 
         :return: (list<PanelDescription>)
-        '''
-        #todo: needs heavy refactor
+        """
+        # todo: needs heavy refactor
         instrument_dict = {}
         try:
             ms = taurus.Device(macroservername)
-            instruments = ms.getElementsOfType('Instrument')
+            instruments = ms.getElementsOfType("Instrument")
             if instruments is None:
                 raise Exception()
         except Exception as e:
             msg = 'Could not fetch Instrument list from "%s"' % macroservername
             gui.error(msg)
-            result = Qt.QMessageBox.critical(gui, 'Initialization error', '%s\n\n%s' % (
-                msg, repr(e)), Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore)
+            result = Qt.QMessageBox.critical(
+                gui,
+                "Initialization error",
+                "%s\n\n%s" % (msg, repr(e)),
+                Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore,
+            )
             if result == Qt.QMessageBox.Abort:
                 sys.exit()
             return []
         for i in instruments.values():
             i_name = i.full_name
-            #i_name, i_unknown, i_type, i_pools = i.split()
+            # i_name, i_unknown, i_type, i_pools = i.split()
             i_view = PanelDescription(
-                i_name, classname='TaurusForm', floating=False, model=[])
+                i_name, classname="TaurusForm", floating=False, model=[]
+            )
             instrument_dict[i_name] = i_view
 
         from operator import attrgetter
-        pool_elements = sorted(ms.getElementsWithInterface(
-            'Moveable').values(), key=attrgetter('name'))
-        pool_elements += sorted(ms.getElementsWithInterface(
-            'ExpChannel').values(), key=attrgetter('name'))
-        pool_elements += sorted(ms.getElementsWithInterface(
-            'IORegister').values(), key=attrgetter('name'))
+
+        pool_elements = sorted(
+            ms.getElementsWithInterface("Moveable").values(),
+            key=attrgetter("name"),
+        )
+        pool_elements += sorted(
+            ms.getElementsWithInterface("ExpChannel").values(),
+            key=attrgetter("name"),
+        )
+        pool_elements += sorted(
+            ms.getElementsWithInterface("IORegister").values(),
+            key=attrgetter("name"),
+        )
         for elem in pool_elements:
             instrument = elem.instrument
             if instrument:
                 i_name = instrument
                 # -----------------------------------------------------------
-                # Support sardana v<2.4 (which used tango names instead of 
+                # Support sardana v<2.4 (which used tango names instead of
                 # taurus full names
                 e_name = elem.full_name
                 if not e_name.startswith("tango://"):
@@ -171,6 +198,9 @@ class SardanaConfigLoader(AbstractConfigLoader):
                 # -----------------------------------------------------------
                 instrument_dict[i_name].model.append(e_name)
         # filter out empty panels
-        ret = [instrument for instrument in instrument_dict.values()
-               if len(instrument.model) > 0]
+        ret = [
+            instrument
+            for instrument in instrument_dict.values()
+            if len(instrument.model) > 0
+        ]
         return ret

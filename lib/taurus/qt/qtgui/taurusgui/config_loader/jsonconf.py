@@ -26,17 +26,11 @@
 import json
 import os
 
-from taurus.qt.qtgui.taurusgui.utils import (
-    PanelDescription,
-    ToolBarDescription,
-    AppletDescription,
-    ExternalApp,
-)
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader,
-    ConfigLoaderError,
-)
-
+    AbstractConfigLoader, ConfigLoaderError)
+from taurus.qt.qtgui.taurusgui.utils import (AppletDescription, ExternalApp,
+                                             PanelDescription,
+                                             ToolBarDescription)
 
 __all__ = ["JsonConfigLoader"]
 
@@ -91,11 +85,18 @@ class JsonConfigLoader(AbstractConfigLoader):
             if v in self._data:
                 tmp[v] = self._data[v]
 
-        for klass in (PanelDescription, ToolBarDescription, AppletDescription, ExternalApp):
+        for klass in (
+            PanelDescription,
+            ToolBarDescription,
+            AppletDescription,
+            ExternalApp,
+        ):
             tmp[klass.__name__ + "s"] = self._get_objects(klass)
         self._data.update(tmp)
 
-        self._data["CONF_DIR"] = os.path.abspath(os.path.dirname(self._confname))
+        self._data["CONF_DIR"] = os.path.abspath(
+            os.path.dirname(self._confname)
+        )
 
         return self._data
 

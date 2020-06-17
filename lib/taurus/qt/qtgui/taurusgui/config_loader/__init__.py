@@ -32,7 +32,6 @@ import pkg_resources
 
 from taurus import warning
 
-
 __all__ = ["getLoader"]
 
 

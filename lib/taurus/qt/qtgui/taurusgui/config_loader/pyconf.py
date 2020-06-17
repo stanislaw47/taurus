@@ -23,23 +23,17 @@
 
 """"""
 
+import inspect
 import os
 import pkgutil
 import sys
 import types
-import inspect
 
-from taurus.qt.qtgui.taurusgui.utils import (
-    PanelDescription,
-    AppletDescription,
-    ToolBarDescription,
-    ExternalApp,
-)
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader,
-    ConfigLoaderError,
-)
-
+    AbstractConfigLoader, ConfigLoaderError)
+from taurus.qt.qtgui.taurusgui.utils import (AppletDescription, ExternalApp,
+                                             PanelDescription,
+                                             ToolBarDescription)
 
 __all__ = ["PyConfigLoader"]
 
@@ -146,7 +140,12 @@ class PyConfigLoader(AbstractConfigLoader):
             if hasattr(self._mod, v):
                 tmp[v] = getattr(self._mod, v)
 
-        for klass in (PanelDescription, AppletDescription, ToolBarDescription, ExternalApp):
+        for klass in (
+            PanelDescription,
+            AppletDescription,
+            ToolBarDescription,
+            ExternalApp,
+        ):
             tmp[klass.__name__ + "s"] = self._get_objects(klass)
 
         return tmp
