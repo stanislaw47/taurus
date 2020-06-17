@@ -975,19 +975,19 @@ class TaurusGui(TaurusMainWindow):
         return ret
 
     def getConfigValue(self, conf, field, default=None):
-        value = getattr(conf, field)
-        if value is None:
-            return default
-        else:
-            return value
+        return conf.get(field, default)
 
     def loadConfiguration(self, confname):
         '''Reads a configuration file
         '''
+        conf = {}
         try:
-            conf = getLoader(confname)
-            conf.load()
-            self._confDirectory = conf.conf_dir
+            for loader in getLoader(confname):
+                conf.update(loader.load())
+            if "CONF_DIR" in conf:
+                self._confDirectory = conf["CONF_DIR"]
+            else:
+                self._confDirectory = os.path.expanduser("~")
         except Exception:
             import traceback
             msg = 'Error loading configuration: %s' % traceback.format_exc()  # repr(e)
@@ -1018,16 +1018,16 @@ class TaurusGui(TaurusMainWindow):
         self._loadIniFile(conf)
 
     def _loadAppName(self, conf, confname):
-        appname = self.getConfigValue(conf, "app_name")
+        appname = self.getConfigValue(conf, "GUI_NAME")
         Qt.qApp.setApplicationName(appname)
         self.setWindowTitle(appname)
 
     def _loadOrgName(self, conf):
-        orgname = self.getConfigValue(conf, "org_name", str(Qt.qApp.organizationName()) or 'Taurus')
+        orgname = self.getConfigValue(conf, "ORGANIZATION", str(Qt.qApp.organizationName()) or 'Taurus')
         Qt.qApp.setOrganizationName(orgname)
 
     def _loadCustomLogo(self, conf):
-        custom_logo = self.getConfigValue(conf, "custom_logo", 'logos:taurus.png')
+        custom_logo = self.getConfigValue(conf, "CUSTOM_LOGO", 'logos:taurus.png')
         if Qt.QFile.exists(custom_logo):
             custom_icon = Qt.QIcon(custom_logo)
         else:
@@ -1041,7 +1041,7 @@ class TaurusGui(TaurusMainWindow):
         logo = getattr(tauruscustomsettings,
                        "ORGANIZATION_LOGO",
                        "logos:taurus.png")
-        org_logo = self.getConfigValue(conf, "org_logo", logo)
+        org_logo = self.getConfigValue(conf, "ORGANIZATION_LOGO", logo)
         if Qt.QFile.exists(org_logo):
             org_icon = Qt.QIcon(org_logo)
         else:
@@ -1054,7 +1054,7 @@ class TaurusGui(TaurusMainWindow):
         """
         if required, enforce that only one instance of this GUI can be run
         """
-        single_inst = self.getConfigValue(conf, "single_instance", True)
+        single_inst = self.getConfigValue(conf, "SINGLE_INSTANCE", True)
 
         if single_inst:
             if not self.checkSingleInstance():
@@ -1070,7 +1070,7 @@ class TaurusGui(TaurusMainWindow):
         get custom widget catalog entries
         """
         # @todo: support also loading from xml
-        extra_catalog_widgets = self.getConfigValue(conf, "extra_catalog_widgets", [])
+        extra_catalog_widgets = self.getConfigValue(conf, "EXTRA_CATALOG_WIDGETS", [])
         self._extraCatalogWidgets = []
         for class_name, pix_map_name in extra_catalog_widgets:
             # If a relative file name is given, the conf directory will be used
@@ -1083,7 +1083,7 @@ class TaurusGui(TaurusMainWindow):
         """
         manual panel
         """
-        manual_uri = self.getConfigValue(conf, "manual_uri", taurus.Release.url)
+        manual_uri = self.getConfigValue(conf, "MANUAL_URI", taurus.Release.url)
         self.setHelpManualURI(manual_uri)
 
         if self.HELP_MENU_ENABLED:
@@ -1145,7 +1145,7 @@ class TaurusGui(TaurusMainWindow):
     
     def _loadSynoptic(self, conf):
         # Synoptics
-        synoptic = self.getConfigValue(conf, "synoptic", [])
+        synoptic = self.getConfigValue(conf, "SYNOPTIC", [])
         if isinstance(synoptic, string_types):  # old config file style
             self.warning(
                 'Deprecated usage of synoptic keyword (now it expects a list of paths). Please update your configuration file to: "synoptic=[\'%s\']".' % synoptic)
@@ -1169,7 +1169,7 @@ class TaurusGui(TaurusMainWindow):
         create panels based on the panel descriptions
         """
 
-        custom_panels = conf.panels
+        custom_panels = conf["PanelDescriptions"]
 
         for p in custom_panels + poolinstruments:
             try:
@@ -1244,7 +1244,7 @@ class TaurusGui(TaurusMainWindow):
         get custom toolbars descriptions from the python config file, xml config and
         create toolbars based on the descriptions
         """
-        for d in conf.toolbars:
+        for d in conf["ToolbarDescriptinos"]:
             try:
                 try:
                     self.splashScreen().showMessage("Creating Toolbar %s" % d.name)
@@ -1277,7 +1277,7 @@ class TaurusGui(TaurusMainWindow):
         get custom applet descriptions from the python config file, xml config and
         create applet based on the descriptions
         """
-        custom_applets = conf.applets[:]
+        custom_applets = conf.["AppletDescriptions"][:]
         # for backwards compatibility
         monitor = self.getConfigValue(conf, "monitor", [])
         if monitor:
@@ -1311,7 +1311,7 @@ class TaurusGui(TaurusMainWindow):
         """
         add external applications from both the python and the xml config files
         """
-        for a in conf.external_apps:
+        for a in conf["ExternalApps"]:
             self._external_app_names.append(str(a.getAction().text()))
             self.addExternalAppLauncher(a.getAction())
 
@@ -1320,7 +1320,7 @@ class TaurusGui(TaurusMainWindow):
         get the "factory settings" filename. By default, it is called
         "default.ini" and resides in the configuration dir
         """
-        ini_file = self.getConfigValue(conf, "ini_file", "default.ini")
+        ini_file = self.getConfigValue(conf, "INIFILE", "default.ini")
 
         # if a relative name is given, the conf dir is used as the root path
         ini_file_name = os.path.join(self._confDirectory, ini_file)
