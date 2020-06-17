@@ -99,44 +99,19 @@ class XmlConfigLoader(AbstractConfigLoader):
             msg = 'Error reading the XML file: "%s"' % self._confname
             raise ConfigLoaderError(msg)
 
-    @property
-    def conf_dir(self):
-        return os.path.abspath(os.path.dirname(self._confname))
+        tmp = {}
 
-    @property
-    def app_name(self):
-        return self._get("GUI_NAME")
+        for v in self.CONFIG_VALUES:
+            name = self._root.find(v)
+            if name is not None and name.text is not None:
+                tmp[v] = name.text
 
-    @property
-    def org_name(self):
-        return self._get("ORGANIZATION")
+        for klass in (PanelDescription, ToolBarDescription, AppletDescription, ExternalApp):
+            tmp[klass.__name__ + "s"] = self._get_objects(klass)
 
-    @property
-    def custom_logo(self):
-        return self._get("CUSTOM_LOGO")
+        tmp["CONF_DIR"] = os.path.abspath(os.path.dirname(self._confname))
 
-    @property
-    def org_logo(self):
-        return self._get("ORGANIZATION_LOGO")
-
-    @property
-    def single_instance(self):
-        return self._get("SINGLE_INSTANCE")
-
-    @property
-    def manual_uri(self):
-        return self._get("MANUAL_URI")
-
-    @property
-    def ini_file(self):
-        return self._get("INIFILE")
-
-    @property
-    def extra_catalog_widgets(self):
-        """
-        Not implemented for now
-        """
-        return []
+        return tmp
 
     @property
     def synoptics(self):
@@ -149,51 +124,3 @@ class XmlConfigLoader(AbstractConfigLoader):
                 if s:
                     synoptic.append(s)
         return synoptic
-
-    @property
-    def console(self):
-        return self._get("CONSOLE")
-
-    @property
-    def monitor(self):
-        return AppletDescription(
-            "monitor",
-            classname="TaurusMonitorTiny",
-            model=self._get("MONITOR"),
-        )
-
-    @property
-    def panels(self):
-        return self._get_objects(PanelDescription)
-
-    @property
-    def toolbars(self):
-        return self._get_objects(ToolBarDescription)
-
-    @property
-    def applets(self):
-        return self._get_objects(AppletDescription)
-
-    @property
-    def external_apps(self):
-        return self._get_objects(ExternalApp)
-
-    @property
-    def macroserver_name(self):
-        return self._get("MACROSERVER_NAME")
-
-    @property
-    def macro_panels(self):
-        return self._get("MACRO_PANELS")
-
-    @property
-    def door_name(self):
-        return self._get("DOOR_NAME")
-
-    @property
-    def macroeditors_path(self):
-        return self._get("MACROEDITORS_PATH")
-
-    @property
-    def instruments_from_pool(self):
-        return self._get("INSTRUMENTS_FROM_POOL")

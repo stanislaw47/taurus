@@ -49,6 +49,18 @@ class AbstractConfigLoader(abc.ABC):
     order for it to be ConfigLoader
     """
 
+    CONFIG_VALUES = [
+        "GUI_NAME",
+        "ORGANIZATION",
+        "CUSTOM_LOGO",
+        "ORGANIZATION_LOGO",
+        "SINGLE_INSTANCE",
+        "MANUAL_URI",
+        "INIFILE",
+        "EXTRA_CATALOG_WIDGETS",
+        "SYNOPTIC",
+    ]
+
     def __init__(self, confname):
         self._confname = confname
 
@@ -62,70 +74,7 @@ class AbstractConfigLoader(abc.ABC):
     @abc.abstractmethod
     def load(self):
         """
-        This method is meant to load actual data from file on disk
+        This method is meant to load actual data from file on disk.
+        Return dictionary with configuration.
         """
-
-    @abc.abstractproperty
-    def app_name(self):
-        """Name of the application"""
-        return None
-
-    @abc.abstractproperty
-    def org_name(self):
-        """Name of organization"""
-        return None
-
-    @abc.abstractproperty
-    def custom_logo(self):
-        """Path to application's custom logo file"""
-        return None
-
-    @abc.abstractproperty
-    def org_logo(self):
-        """Path to organization's custom logo file"""
-        return None
-
-    @abc.abstractproperty
-    def single_instance(self):
-        """Whether more than one instance of application can be launched simultaously or not"""
-        return None
-
-    @abc.abstractproperty
-    def manual_uri(self):
-        """URI pointing to application's manual"""
-        return None
-
-    @abc.abstractproperty
-    def ini_file(self):
-        """Path to application's default INI file with settings"""
-        return None
-
-    @abc.abstractproperty
-    def extra_catalog_widgets(self):
-        """Path to application's custom logo file"""
-        return []
-
-    @abc.abstractproperty
-    def synoptics(self):
-        """Sequence of paths to synoptic files"""
-        return []
-
-    @abc.abstractproperty
-    def panels(self):
-        """List of custom panels with widgets"""
-        return []
-
-    @abc.abstractproperty
-    def toolbars(self):
-        """List of custom toolbars"""
-        return []
-
-    @abc.abstractproperty
-    def applets(self):
-        """List of custom applets"""
-        return []
-
-    @abc.abstractproperty
-    def external_apps(self):
-        """List of external applications"""
-        return []
+        return {}

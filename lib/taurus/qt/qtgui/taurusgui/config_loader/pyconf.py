@@ -136,90 +136,14 @@ class PyConfigLoader(AbstractConfigLoader):
         else:  # if confname is not a dir name, we assume it is a module name in the python path
             self._mod = self._importConfiguration()
 
-    @property
-    def conf_dir(self):
-        return os.path.abspath(os.path.dirname(self._mod.__file__))
+        tmp = {}
+        tmp["CONF_DIR"] = os.path.abspath(os.path.dirname(self._mod.__file__))
 
-    @property
-    def app_name(self):
-        return getattr(self._mod, "GUI_NAME", None)
+        for v in self.CONFIG_VALUES:
+            if hasattr(self._mod, v):
+                tmp[v] = getattr(self._mod, v)
 
-    @property
-    def org_name(self):
-        return getattr(self._mod, "ORGANIZATION", None)
+        for klass in (PanelDescription, AppletDescription, ToolBarDescription, ExternalApp):
+            tmp[klass.__name__ + "s"] = self._get_objects(klass)
 
-    @property
-    def custom_logo(self):
-        return getattr(self._mod, "CUSTOM_LOGO", None)
-
-    @property
-    def org_logo(self):
-        return getattr(self._mod, "ORGANIZATION_LOGO", None)
-
-    @property
-    def single_instance(self):
-        return getattr(self._mod, "SINGLE_INSTANCE", None)
-
-    @property
-    def manual_uri(self):
-        return getattr(self._mod, "MANUAL_URI", None)
-
-    @property
-    def ini_file(self):
-        return getattr(self._mod, "INIFILE", None)
-
-    @property
-    def extra_catalog_widgets(self):
-        return getattr(self._mod, "EXTRA_CATALOG_WIDGETS", [])
-
-    @property
-    def synoptics(self):
-        return getattr(self._mod, "SYNOPTIC", [])
-
-    @property
-    def console(self):
-        return getattr(self._mod, "CONSOLE", [])
-
-    @property
-    def monitor(self):
-        return AppletDescription(
-            "monitor",
-            classname="TaurusMonitorTiny",
-            model=getattr(self._mod, "MONITOR"),
-        )
-
-    @property
-    def panels(self):
-        return self._get_objects(PanelDescription)
-
-    @property
-    def toolbars(self):
-        return self._get_objects(ToolBarDescription)
-
-    @property
-    def applets(self):
-        return self._get_objects(AppletDescription)
-
-    @property
-    def external_apps(self):
-        return self._get_objects(ExternalApp)
-
-    @property
-    def macroserver_name(self):
-        return getattr(self._mod, "MACROSERVER_NAME", None)
-
-    @property
-    def macro_panels(self):
-        return getattr(self._mod, "MACRO_PANELS", None)
-
-    @property
-    def door_name(self):
-        return getattr(self._mod, "DOOR_NAME", None)
-
-    @property
-    def macroeditors_path(self):
-        return getattr(self._mod, "MACROEDITORS_PATH", None)
-
-    @property
-    def instruments_from_pool(self):
-        return getattr(self._mod, "INSTRUMENTS_FROM_POOL", None)
+        return tmp
