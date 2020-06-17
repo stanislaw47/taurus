@@ -1105,21 +1105,21 @@ class TaurusGui(TaurusMainWindow):
         return pool_instruments
 
     def _loadMacroServerName(self, conf):
-        macro_server_name = self.getConfigValue(conf, "macroserver_name")
+        macro_server_name = self.getConfigValue(conf, "MACROSERVER_NAME")
         if macro_server_name:
             self.macroserverNameChanged.emit(macro_server_name)
         return macro_server_name
 
     def _loadMacroPanels(self, conf):
-        return self.getConfigValue(conf, "macro_panels", True)
+        return self.getConfigValue(conf, "MACRO_PANELS", True)
 
     def _loadDoorName(self, conf):
-        door_name = self.getConfigValue(conf, "door_name", True)
+        door_name = self.getConfigValue(conf, "DOOR_NAME", True)
         if door_name:
             self.doorNameChanged.emit(door_name)
 
     def _loadMacroEditorsPath(self, conf):
-        macro_editors_path = self.getConfigValue(conf, "macroeditors_path", True)
+        macro_editors_path = self.getConfigValue(conf, "MACRO_EDITORS_PATH", True)
         if macro_editors_path:
             from sardana.taurus.qt.qtgui.extra_macroexecutor.macroparameterseditor.macroparameterseditor import \
                 ParamEditorManager
@@ -1130,7 +1130,7 @@ class TaurusGui(TaurusMainWindow):
         """
         Get panel descriptions from pool if required
         """
-        instruments_from_pool = self.getConfigValue(conf, "instruments_from_pool", False)
+        instruments_from_pool = self.getConfigValue(conf, "INSTRUMENTS_FROM_POOL", False)
         if instruments_from_pool:
             try:
                 self.splashScreen().showMessage("Gathering Instrument info from Pool")
@@ -1159,7 +1159,7 @@ class TaurusGui(TaurusMainWindow):
         Panel with a `silx.gui.console.IPythonWidget`
         """
         # TODO: remove this method when making deprecation efective
-        console = self.getConfigValue(conf, "console", [])
+        console = self.getConfigValue(conf, "CONSOLE", [])
         if console:
             self.createConsole([])
 
@@ -1279,7 +1279,7 @@ class TaurusGui(TaurusMainWindow):
         """
         custom_applets = conf.["AppletDescriptions"][:]
         # for backwards compatibility
-        monitor = self.getConfigValue(conf, "monitor", [])
+        monitor = self.getConfigValue(conf, "MONITOR", [])
         if monitor:
             custom_applets.append(monitor)
 
