@@ -1277,7 +1277,7 @@ class TaurusGui(TaurusMainWindow):
         get custom applet descriptions from the python config file, xml config and
         create applet based on the descriptions
         """
-        custom_applets = conf.["AppletDescriptions"][:]
+        custom_applets = conf["AppletDescriptions"][:]
         # for backwards compatibility
         monitor = self.getConfigValue(conf, "MONITOR", [])
         if monitor:
