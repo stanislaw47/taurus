@@ -56,7 +56,7 @@ class SardanaConfigLoader(AbstractConfigLoader):
 
     @staticmethod
     def supports(confname):
-        return False
+        return True
 
     def load(self):
         return {}
