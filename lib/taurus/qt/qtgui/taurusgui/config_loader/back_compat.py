@@ -61,3 +61,7 @@ class BckCompatConfigLoader(AbstractConfigLoader):
             tmp.update(xml.load())
 
         return tmp
+
+    @property
+    def hooks(self):
+        return []

@@ -78,3 +78,12 @@ class AbstractConfigLoader(abc.ABC):
         Return dictionary with configuration.
         """
         return {}
+
+    @abc.abstractproperty
+    def hooks(self):
+        """
+        List of hooks called at the end of 'TaurusGui.loadConfiguration'
+        method. Each of them shall be called with 'TaurusGui' instance as
+        first argument and dictionary with configuration as second.
+        """
+        return []

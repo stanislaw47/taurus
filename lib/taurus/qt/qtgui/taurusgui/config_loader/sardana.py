@@ -62,3 +62,7 @@ class SardanaConfigLoader(AbstractConfigLoader):
 
     def load(self):
         return {}
+
+    @property
+    def hooks(self):
+        return []

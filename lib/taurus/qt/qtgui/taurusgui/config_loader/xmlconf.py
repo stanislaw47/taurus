@@ -127,3 +127,7 @@ class XmlConfigLoader(AbstractConfigLoader):
                 if s:
                     synoptic.append(s)
         return synoptic
+
+    @property
+    def hooks(self):
+        return []

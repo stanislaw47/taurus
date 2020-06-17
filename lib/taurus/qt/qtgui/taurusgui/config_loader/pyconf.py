@@ -150,3 +150,7 @@ class PyConfigLoader(AbstractConfigLoader):
             tmp[klass.__name__ + "s"] = self._get_objects(klass)
 
         return tmp
+
+    @property
+    def hooks(self):
+        return []

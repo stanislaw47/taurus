@@ -98,3 +98,7 @@ class JsonConfigLoader(AbstractConfigLoader):
         self._data["CONF_DIR"] = os.path.abspath(os.path.dirname(self._confname))
 
         return self._data
+
+    @property
+    def hooks(self):
+        return []
