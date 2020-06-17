@@ -84,7 +84,7 @@ class XmlConfigLoader(AbstractConfigLoader):
                 return True
         return False
 
-    def load(self):
+    def _get_data(self):
         """
         Get the xml root node from the xml configuration file
         """
@@ -98,6 +98,9 @@ class XmlConfigLoader(AbstractConfigLoader):
         except Exception as e:
             msg = 'Error reading the XML file: "%s"' % self._confname
             raise ConfigLoaderError(msg)
+
+    def load(self):
+        self._get_data()
 
         tmp = {}
 

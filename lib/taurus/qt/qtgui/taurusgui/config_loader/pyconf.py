@@ -106,7 +106,7 @@ class PyConfigLoader(AbstractConfigLoader):
                 return True
             return False
 
-    def load(self):
+    def _get_data(self):
         """Reads a configuration file
 
         :param confname: (str or None) the  name of module located in the
@@ -135,6 +135,9 @@ class PyConfigLoader(AbstractConfigLoader):
                 self._mod = self._importConfiguration()
         else:  # if confname is not a dir name, we assume it is a module name in the python path
             self._mod = self._importConfiguration()
+
+    def load(self):
+        self._get_data()
 
         tmp = {}
         tmp["CONF_DIR"] = os.path.abspath(os.path.dirname(self._mod.__file__))

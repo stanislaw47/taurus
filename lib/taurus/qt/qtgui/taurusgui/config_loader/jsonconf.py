@@ -69,7 +69,7 @@ class JsonConfigLoader(AbstractConfigLoader):
                 return True
         return False
 
-    def load(self):
+    def _get_data(self):
         try:
             with open(self._confname, "r") as fp:
                 self._data = json.load(fp)
@@ -81,6 +81,9 @@ class JsonConfigLoader(AbstractConfigLoader):
             raise ConfigLoaderError(
                 "Problem with config file decoding: " + str(e)
             )
+
+    def load(self):
+        self._get_data()
 
         tmp = {}
 
