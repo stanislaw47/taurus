@@ -906,59 +906,6 @@ class TaurusGui(TaurusMainWindow):
             toggleSynopticAction = synopticpanel.toggleViewAction()
             self.quickAccessToolBar.addAction(toggleSynopticAction)
 
-    def createInstrumentsFromPool(self, macroservername):
-        '''
-        Creates a list of instrument panel descriptions by gathering the info
-        from the Pool. Each panel is a TaurusForm grouping together all those
-        elements that belong to the same instrument according to the Pool info
-
-        :return: (list<PanelDescription>)
-        '''
-        instrument_dict = {}
-        try:
-            ms = taurus.Device(macroservername)
-            instruments = ms.getElementsOfType('Instrument')
-            if instruments is None:
-                raise Exception()
-        except Exception as e:
-            msg = 'Could not fetch Instrument list from "%s"' % macroservername
-            self.error(msg)
-            result = Qt.QMessageBox.critical(self, 'Initialization error', '%s\n\n%s' % (
-                msg, repr(e)), Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore)
-            if result == Qt.QMessageBox.Abort:
-                sys.exit()
-            return []
-        for i in instruments.values():
-            i_name = i.full_name
-            #i_name, i_unknown, i_type, i_pools = i.split()
-            i_view = PanelDescription(
-                i_name, classname='TaurusForm', floating=False, model=[])
-            instrument_dict[i_name] = i_view
-
-        from operator import attrgetter
-        pool_elements = sorted(ms.getElementsWithInterface(
-            'Moveable').values(), key=attrgetter('name'))
-        pool_elements += sorted(ms.getElementsWithInterface(
-            'ExpChannel').values(), key=attrgetter('name'))
-        pool_elements += sorted(ms.getElementsWithInterface(
-            'IORegister').values(), key=attrgetter('name'))
-        for elem in pool_elements:
-            instrument = elem.instrument
-            if instrument:
-                i_name = instrument
-                # -----------------------------------------------------------
-                # Support sardana v<2.4 (which used tango names instead of 
-                # taurus full names
-                e_name = elem.full_name
-                if not e_name.startswith("tango://"):
-                    e_name = "tango://%s" % e_name
-                # -----------------------------------------------------------
-                instrument_dict[i_name].model.append(e_name)
-        # filter out empty panels
-        ret = [instrument for instrument in instrument_dict.values()
-               if len(instrument.model) > 0]
-        return ret
-
     def getConfigValue(self, conf, field, default=None):
         return conf.get(field, default)
 
@@ -991,12 +938,9 @@ class TaurusGui(TaurusMainWindow):
 
         self._loadExtraCatalogWidgets(conf)
         self._loadManualUri(conf)
-        POOLINSTRUMENTS = self._loadSardanaOptions(conf)
         self._loadSynoptic(conf)
-        # TODO: remove deprecated _loadConsole
-        self._loadConsole(conf)
 
-        self._loadCustomPanels(conf, POOLINSTRUMENTS)
+        self._loadCustomPanels(conf)
         self._loadCustomToolBars(conf)
         self._loadCustomApplets(conf)
         self._loadExternalApps(conf)
@@ -1074,59 +1018,6 @@ class TaurusGui(TaurusMainWindow):
         if self.HELP_MENU_ENABLED:
             self.createPanel(self.helpManualBrowser, 'Manual', permanent=True,
                              icon=Qt.QIcon.fromTheme('help-browser'))
-
-    ### SARDANA MACRO STUFF ON
-    def _loadSardanaOptions(self, conf):
-        """configure macro infrastructure"""
-        ms = self._loadMacroServerName(conf)
-        mp = self._loadMacroPanels(conf)
-        # macro infrastructure will only be created if MACROSERVER_NAME is set
-        if ms is not None and mp is True:
-            from sardana.taurus.qt.qtgui.macrolistener import MacroBroker
-            self.__macroBroker = MacroBroker(self)
-        self._loadDoorName(conf)
-        self._loadMacroEditorsPath(conf)
-        pool_instruments = self._loadInstrumentsFromPool(conf, ms)
-        return pool_instruments
-
-    def _loadMacroServerName(self, conf):
-        macro_server_name = self.getConfigValue(conf, "MACROSERVER_NAME")
-        if macro_server_name:
-            self.macroserverNameChanged.emit(macro_server_name)
-        return macro_server_name
-
-    def _loadMacroPanels(self, conf):
-        return self.getConfigValue(conf, "MACRO_PANELS", True)
-
-    def _loadDoorName(self, conf):
-        door_name = self.getConfigValue(conf, "DOOR_NAME", True)
-        if door_name:
-            self.doorNameChanged.emit(door_name)
-
-    def _loadMacroEditorsPath(self, conf):
-        macro_editors_path = self.getConfigValue(conf, "MACRO_EDITORS_PATH", True)
-        if macro_editors_path:
-            from sardana.taurus.qt.qtgui.extra_macroexecutor.macroparameterseditor.macroparameterseditor import \
-                ParamEditorManager
-            ParamEditorManager().parsePaths(macro_editors_path)
-            ParamEditorManager().browsePaths()
-
-    def _loadInstrumentsFromPool(self, conf, macro_server_name):
-        """
-        Get panel descriptions from pool if required
-        """
-        instruments_from_pool = self.getConfigValue(conf, "INSTRUMENTS_FROM_POOL", False)
-        if instruments_from_pool:
-            try:
-                self.splashScreen().showMessage("Gathering Instrument info from Pool")
-            except AttributeError:
-                pass
-            pool_instruments = self.createInstrumentsFromPool(
-                macro_server_name)  # auto create instruments from pool
-        else:
-            pool_instruments = []
-        return pool_instruments
-    ### SARDANA MACRO STUFF OFF
     
     def _loadSynoptic(self, conf):
         # Synoptics
