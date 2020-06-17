@@ -38,7 +38,7 @@ class SardanaConfigLoader(AbstractConfigLoader):
     """
     Config loader which loads Sardana-related values.
     This lives as a hack for manupulating AbstracLoader.CONFIG_VALUES.
-    It does not laod anything by itself, just injects new values into
+    It does not load anything by itself, just injects new values into
     CONFIG_VALUES so other laoders will load them.
     """
 
