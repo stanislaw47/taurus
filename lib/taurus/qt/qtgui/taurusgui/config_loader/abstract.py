@@ -66,13 +66,6 @@ class AbstractConfigLoader(abc.ABC):
         """
 
     @abc.abstractproperty
-    def conf_dir(self):
-        """
-        Absolute path to directory in which config file is placed
-        """
-        return None
-
-    @abc.abstractproperty
     def app_name(self):
         """Name of the application"""
         return None
