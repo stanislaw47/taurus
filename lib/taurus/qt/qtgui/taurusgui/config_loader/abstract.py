@@ -118,11 +118,6 @@ class AbstractConfigLoader(abc.ABC):
         return []
 
     @abc.abstractproperty
-    def console(self):
-        """Whether to add console widget or not"""
-        return None
-
-    @abc.abstractproperty
     def panels(self):
         """List of custom panels with widgets"""
         return []
@@ -141,40 +136,3 @@ class AbstractConfigLoader(abc.ABC):
     def external_apps(self):
         """List of external applications"""
         return []
-
-    # deprecated
-    @abc.abstractproperty
-    def monitor(self):
-        """
-        ApplicationDescription object with TaurusTinyMonitor widget
-        and model set from config
-        """
-        return None
-
-    # SARDANA STUFF ON
-    @abc.abstractproperty
-    def macroserver_name(self):
-        """Name of MacroServer"""
-        return None
-
-    @abc.abstractproperty
-    def macro_panels(self):
-        """Whether to enable Sardana macro panels or not"""
-        return None
-
-    @abc.abstractproperty
-    def door_name(self):
-        """Name of MacroServer's Door"""
-        return None
-
-    @abc.abstractproperty
-    def macroeditors_path(self):
-        """Path to macro editors (?)"""
-        return None
-
-    @abc.abstractproperty
-    def instruments_from_pool(self):
-        """Whether to load instruments from Pool as panels or not"""
-        return None
-
-    # SARDANA STUFF OFF
