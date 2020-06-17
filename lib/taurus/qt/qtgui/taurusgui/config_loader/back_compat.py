@@ -22,7 +22,11 @@
 ###########################################################################
 
 """"""
+import sys
 
+import taurus
+from taurus.external.qt import Qt
+from taurus.qt.qtgui.taurusgui.utils import AppletDescription
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
 )
@@ -64,4 +68,57 @@ class BckCompatConfigLoader(AbstractConfigLoader):
 
     @property
     def hooks(self):
-        return []
+        return self.loadConsole, self.loadMonitor
+
+    @staticmethod
+    def loadMonitor(gui, conf):
+        monitor_model = gui.getConfigValue(conf, "MONITOR")
+        if monitor_model is None:
+            return
+
+        try:
+            try:
+                gui.splashScreen().showMessage("Creating applet monitor")
+            except AttributeError:
+                pass
+
+            from taurus.qt.qtgui.qwt5.monitor import TaurusMonitorTiny
+
+            w = TaurusMonitorTiny()
+            w.setModel(monitor_model)
+            # add the widget to the applets toolbar
+            gui.jorgsBar.addWidget(w)
+            # register the toolbar as delegate
+            gui.registerConfigDelegate(w, "monitor")
+        except Exception as e:
+            msg = "Cannot add applet 'monitor'"
+            gui.error(msg)
+            gui.traceback(level=taurus.Info)
+            result = Qt.QMessageBox.critical(gui, "Initialization error", "%s\n\n%s" % (
+                msg, repr(e)), Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore)
+            if result == Qt.QMessageBox.Abort:
+                sys.exit()
+
+    @staticmethod
+    def loadConsole(gui, conf):
+        """
+        Deprecated CONSOLE command (if you need a IPython Console, just add a
+        Panel with a `silx.gui.console.IPythonWidget`
+        """
+        # TODO: remove this method when making deprecation efective
+        if not gui.getConfigValue(conf, "CONSOLE", []):
+            return
+
+        msg = ('createConsole() and the "CONSOLE" configuration key are ' +
+               'deprecated since 4.0.4. Add a panel with a ' +
+               'silx.gui.console.IPythonWidget  widdget instead')
+        gui.deprecated(msg)
+        try:
+            from silx.gui.console import IPythonWidget
+        except ImportError:
+            gui.warning('Cannot import taurus.qt.qtgui.console. ' +
+                         'The Console Panel will not be available')
+            return
+        console = IPythonWidget()
+        gui.createPanel(console, "Console", permanent=True,
+                         icon=Qt.QIcon.fromTheme('utilities-terminal'))

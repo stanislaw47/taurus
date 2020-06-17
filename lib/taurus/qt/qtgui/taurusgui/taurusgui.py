@@ -906,21 +906,6 @@ class TaurusGui(TaurusMainWindow):
             toggleSynopticAction = synopticpanel.toggleViewAction()
             self.quickAccessToolBar.addAction(toggleSynopticAction)
 
-    def createConsole(self, kernels):
-        msg = ('createConsole() and the "CONSOLE" configuration key are ' +
-               'deprecated since 4.0.4. Add a panel with a ' +
-               'silx.gui.console.IPythonWidget  widdget instead')
-        self.deprecated(msg)
-        try:
-            from silx.gui.console import IPythonWidget
-        except ImportError:
-            self.warning('Cannot import taurus.qt.qtgui.console. ' +
-                         'The Console Panel will not be available')
-            return
-        console = IPythonWidget()
-        self.createPanel(console, "Console", permanent=True,
-                         icon=Qt.QIcon.fromTheme('utilities-terminal'))
-
     def createInstrumentsFromPool(self, macroservername):
         '''
         Creates a list of instrument panel descriptions by gathering the info
@@ -1153,16 +1138,6 @@ class TaurusGui(TaurusMainWindow):
         for s in synoptic:
             self.createMainSynoptic(s)
 
-    def _loadConsole(self, conf):
-        """
-        Deprecated CONSOLE command (if you need a IPython Console, just add a
-        Panel with a `silx.gui.console.IPythonWidget`
-        """
-        # TODO: remove this method when making deprecation efective
-        console = self.getConfigValue(conf, "CONSOLE", [])
-        if console:
-            self.createConsole([])
-
     def _loadCustomPanels(self, conf, poolinstruments=None):
         """
         get custom panel descriptions from the python config file, xml config and
@@ -1277,13 +1252,7 @@ class TaurusGui(TaurusMainWindow):
         get custom applet descriptions from the python config file, xml config and
         create applet based on the descriptions
         """
-        custom_applets = conf["AppletDescriptions"][:]
-        # for backwards compatibility
-        monitor = self.getConfigValue(conf, "MONITOR", [])
-        if monitor:
-            custom_applets.append(monitor)
-
-        for d in custom_applets:
+        for d in conf["AppletDescriptions"]:
             try:
                 try:
                     self.splashScreen().showMessage("Creating applet %s" % d.name)
