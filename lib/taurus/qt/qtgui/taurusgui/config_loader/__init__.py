@@ -60,5 +60,5 @@ def getLoader(confname):
             )
     if not loaders:
         raise NotImplementedError(
-            "Not supported config loader for '%s'" % confname
+            "No supported config loader for '%s'" % confname
         )
