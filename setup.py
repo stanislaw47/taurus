@@ -129,6 +129,7 @@ config_loaders = [
     'taurus.py = taurus.qt.qtgui.taurusgui.config_loader.pyconf:PyConfigLoader',
     'taurus.json = taurus.qt.qtgui.taurusgui.config_loader.jsonconf:JsonConfigLoader',
     'taurus.xml = taurus.qt.qtgui.taurusgui.config_loader.xmlconf:XmlConfigLoader',
+    'taurus.bck_compat = taurus.qt.qtgui.taurusgui.config_loader.back_compat:BckCompatConfigLoader',
 ]
 
 entry_points = {
