@@ -126,9 +126,9 @@ formatters = [
 ]
 
 config_loaders = [
-    'py = taurus.qt.qtgui.taurusgui.config_loader.pyconf:PyConfigLoader',
-    'json = taurus.qt.qtgui.taurusgui.config_loader.jsonconf:JsonConfigLoader',
-    'xml = taurus.qt.qtgui.taurusgui.config_loader.xmlconf:XmlConfigLoader',
+    'taurus.py = taurus.qt.qtgui.taurusgui.config_loader.pyconf:PyConfigLoader',
+    'taurus.json = taurus.qt.qtgui.taurusgui.config_loader.jsonconf:JsonConfigLoader',
+    'taurus.xml = taurus.qt.qtgui.taurusgui.config_loader.xmlconf:XmlConfigLoader',
 ]
 
 entry_points = {
