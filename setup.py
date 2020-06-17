@@ -130,6 +130,7 @@ config_loaders = [
     'taurus.json = taurus.qt.qtgui.taurusgui.config_loader.jsonconf:JsonConfigLoader',
     'taurus.xml = taurus.qt.qtgui.taurusgui.config_loader.xmlconf:XmlConfigLoader',
     'taurus.bck_compat = taurus.qt.qtgui.taurusgui.config_loader.back_compat:BckCompatConfigLoader',
+    'taurus.sardana = taurus.qt.qtgui.taurusgui.config_loader.sardana:SardanaConfigLoader',
 ]
 
 entry_points = {
