@@ -914,7 +914,8 @@ class TaurusGui(TaurusMainWindow):
         '''
         conf = {}
         try:
-            for loader in getLoader(confname):
+            loaders = getLoader(confname)
+            for loader in loaders:
                 conf.update(loader.load())
             if "CONF_DIR" in conf:
                 self._confDirectory = conf["CONF_DIR"]
@@ -945,6 +946,10 @@ class TaurusGui(TaurusMainWindow):
         self._loadCustomApplets(conf)
         self._loadExternalApps(conf)
         self._loadIniFile(conf)
+
+        for loader in loaders:
+            for hook in loader.hooks:
+                hook(self, conf)
 
     def _loadAppName(self, conf, confname):
         appname = self.getConfigValue(conf, "GUI_NAME")
