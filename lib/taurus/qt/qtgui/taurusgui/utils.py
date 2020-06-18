@@ -463,8 +463,8 @@ class PanelDescription(TaurusGuiComponentDescription):
             "widget_formatter": self.widget_formatter,
             "widget_properties": self.widget_properties,
         }
-
-        return from_parent.update(custom)
+        from_parent.update(custom)
+        return from_parent
 
 
 class ToolBarDescription(TaurusGuiComponentDescription):
