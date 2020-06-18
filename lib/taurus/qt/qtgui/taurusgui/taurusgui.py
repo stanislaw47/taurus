@@ -293,6 +293,23 @@ class TaurusGui(TaurusMainWindow):
     #: wether to add the Quick access Toolbar (empty by default)
     QUICK_ACCESS_TOOLBAR_ENABLED = True
 
+    # default gui configuration, GUI_NAME is mandatory so not present here
+    DEFAULT_CONFIG = {
+        "ORGANIZATION": str(Qt.qApp.organizationName()) or 'Taurus',
+        "CUSTOM_LOGO": 'logos:taurus.png',
+        "ORGANIZATION_LOGO": getattr(tauruscustomsettings, "ORGANIZATION_LOGO", "logos:taurus.png"),
+        "SINGLE_INSTANCE": True,
+        "EXTRA_CATALOG_WIDGETS": [],
+        "MANUAL_URI": taurus.Release.url,
+        "SYNOPTIC": [],
+        "CONF_DIR": os.path.expanduser("~"),  # maybe '~/.config' ?
+        "INIFILE": os.path.join(os.path.expanduser("~", "default.ini")),
+        "PanelDescriptions": [],
+        "ToolbarDescriptions": [],
+        "AppletDescriptions": [],
+        "ExternalApps": [],
+    }
+
     def __init__(self, parent=None, confname=None, configRecursionDepth=None,
                  settingsname=None):
         TaurusMainWindow.__init__(self, parent, False, True)
@@ -906,21 +923,21 @@ class TaurusGui(TaurusMainWindow):
             toggleSynopticAction = synopticpanel.toggleViewAction()
             self.quickAccessToolBar.addAction(toggleSynopticAction)
 
-    def getConfigValue(self, conf, field, default=None):
-        return conf.get(field, default)
+    def getConfigValue(self, conf, field):
+        return conf[field]
 
     def loadConfiguration(self, confname):
         '''Reads a configuration file
         '''
-        conf = {}
+        conf = copy.deepcopy(self.DEFAULT_CONFIG)  # maybe no need for deep copy
         try:
             loaders = getLoaders(confname)
             for loader in loaders:
                 conf.update(loader.load())
-            if "CONF_DIR" in conf:
-                self._confDirectory = conf["CONF_DIR"]
-            else:
-                self._confDirectory = os.path.expanduser("~")
+            self._confDirectory = self.getConfigValue(conf, "CONF_DIR")
+
+            if "GUI_NAME" not in conf:
+                raise Exception("Configuration missing required field 'GUI_NAME")
         except Exception:
             import traceback
             msg = 'Error loading configuration: %s' % traceback.format_exc()  # repr(e)
@@ -975,11 +992,11 @@ class TaurusGui(TaurusMainWindow):
         self.setWindowTitle(appname)
 
     def _loadOrgName(self, conf):
-        orgname = self.getConfigValue(conf, "ORGANIZATION", str(Qt.qApp.organizationName()) or 'Taurus')
+        orgname = self.getConfigValue(conf, "ORGANIZATION")
         Qt.qApp.setOrganizationName(orgname)
 
     def _loadCustomLogo(self, conf):
-        custom_logo = self.getConfigValue(conf, "CUSTOM_LOGO", 'logos:taurus.png')
+        custom_logo = self.getConfigValue(conf, "CUSTOM_LOGO")
         if Qt.QFile.exists(custom_logo):
             custom_icon = Qt.QIcon(custom_logo)
         else:
@@ -990,10 +1007,7 @@ class TaurusGui(TaurusMainWindow):
             self.jorgsBar.addAction(custom_icon, Qt.qApp.applicationName())
 
     def _loadOrgLogo(self, conf):
-        logo = getattr(tauruscustomsettings,
-                       "ORGANIZATION_LOGO",
-                       "logos:taurus.png")
-        org_logo = self.getConfigValue(conf, "ORGANIZATION_LOGO", logo)
+        org_logo = self.getConfigValue(conf, "ORGANIZATION_LOGO")
         if Qt.QFile.exists(org_logo):
             org_icon = Qt.QIcon(org_logo)
         else:
@@ -1006,7 +1020,7 @@ class TaurusGui(TaurusMainWindow):
         """
         if required, enforce that only one instance of this GUI can be run
         """
-        single_inst = self.getConfigValue(conf, "SINGLE_INSTANCE", True)
+        single_inst = self.getConfigValue(conf, "SINGLE_INSTANCE")
 
         if single_inst:
             if not self.checkSingleInstance():
@@ -1022,7 +1036,7 @@ class TaurusGui(TaurusMainWindow):
         get custom widget catalog entries
         """
         # @todo: support also loading from xml
-        extra_catalog_widgets = self.getConfigValue(conf, "EXTRA_CATALOG_WIDGETS", [])
+        extra_catalog_widgets = self.getConfigValue(conf, "EXTRA_CATALOG_WIDGETS")
         self._extraCatalogWidgets = []
         for class_name, pix_map_name in extra_catalog_widgets:
             # If a relative file name is given, the conf directory will be used
@@ -1035,7 +1049,7 @@ class TaurusGui(TaurusMainWindow):
         """
         manual panel
         """
-        manual_uri = self.getConfigValue(conf, "MANUAL_URI", taurus.Release.url)
+        manual_uri = self.getConfigValue(conf, "MANUAL_URI")
         self.setHelpManualURI(manual_uri)
 
         if self.HELP_MENU_ENABLED:
@@ -1044,7 +1058,7 @@ class TaurusGui(TaurusMainWindow):
     
     def _loadSynoptic(self, conf):
         # Synoptics
-        synoptic = self.getConfigValue(conf, "SYNOPTIC", [])
+        synoptic = self.getConfigValue(conf, "SYNOPTIC")
         if isinstance(synoptic, string_types):  # old config file style
             self.warning(
                 'Deprecated usage of synoptic keyword (now it expects a list of paths). Please update your configuration file to: "synoptic=[\'%s\']".' % synoptic)
@@ -1197,10 +1211,7 @@ class TaurusGui(TaurusMainWindow):
         get the "factory settings" filename. By default, it is called
         "default.ini" and resides in the configuration dir
         """
-        ini_file = self.getConfigValue(conf, "INIFILE", "default.ini")
-
-        # if a relative name is given, the conf dir is used as the root path
-        ini_file_name = os.path.join(self._confDirectory, ini_file)
+        ini_file = self.getConfigValue(conf, "INIFILE")
 
         # read the settings (or the factory settings if the regular file is not
         # found)
@@ -1211,7 +1222,7 @@ class TaurusGui(TaurusMainWindow):
             self.splashScreen().showMessage(msg)
         except AttributeError:
             pass
-        self.loadSettings(factorySettingsFileName=ini_file_name)
+        self.loadSettings(factorySettingsFileName=ini_file)
 
     def setLockView(self, locked):
         self.setModifiableByUser(not locked)
