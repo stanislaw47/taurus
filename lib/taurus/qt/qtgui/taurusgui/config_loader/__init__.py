@@ -22,44 +22,6 @@
 ###########################################################################
 
 """
-This module provides factory 'getLoader' for proper ConfigLoader object
-detected from 'confname' string. Each config loader has to implement interface
-defined by AbstractConfigLoader class in
-taurus.qt.qtgui.taurusgui.config_loader.abstract
 """
 
-import pkg_resources
-
-from taurus import warning
-
-__all__ = ["getLoader"]
-
-
-def getLoaders(confname):
-    """
-    Discover proper config loader based on passed string.
-    It can be either path to file or directory or Python
-    abolute path to module with configuration.
-
-    :param confname: name of configuration
-    :return: A AbstractConfigLoader subclass object
-    """
-
-    loaders = []
-    for ep in pkg_resources.iter_entry_points("taurus.gui.loaders"):
-        try:
-            loader = ep.load()
-            if loader.supports(confname):
-                loaders.append(loader(confname))
-        except Exception as e:
-            warning(
-                "Could not load config loader plugin '%s. Reason: '%s",
-                ep.name,
-                e,
-            )
-    if not loaders:
-        raise NotImplementedError(
-            "No supported config loader for '%s'" % confname
-        )
-    else:
-        return loaders
+from .util import getLoaders
