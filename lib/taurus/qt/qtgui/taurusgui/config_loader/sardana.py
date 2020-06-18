@@ -22,6 +22,7 @@
 ###########################################################################
 
 """"""
+from operator import attrgetter
 
 from taurus import Device
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
@@ -34,7 +35,6 @@ from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import (
     XmlConfigLoader,
 )
 from taurus.qt.qtgui.taurusgui.config_loader.util import HookLoaderError
-from taurus.qt.qtgui.taurusgui.utils import PanelDescription
 
 __all__ = ["PySardanaConfigLoader", "XmlSardanaConfigLoader"]
 
@@ -126,18 +126,22 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
             except AttributeError:
                 pass
 
-            pool_instruments = self.createInstrumentsFromPool(ms)
+            pool_instruments = self._getInstrumentsFromPool(ms)
             if pool_instruments:
-                self.loadInstrumentPanels(gui, pool_instruments)
+                self._createInstrumentPanels(gui, pool_instruments)
 
     @staticmethod
-    def createInstrumentsFromPool(gui, macroservername):
+    def _getInstrumentsFromPool(gui, macroservername):
         """
-        Creates a list of instrument panel descriptions by gathering the info
-        from the Pool. Each panel is a TaurusForm grouping together all those
-        elements that belong to the same instrument according to the Pool info
+        Get Instruments information form Pool. Return models for
+        each instrument.
 
-        :return: (list<PanelDescription>)
+        :param TaurusGui gui: instance of TaurusGui
+        :param str macroservername: name of MacroServer
+
+        :return: Dicionary with Pool instruments where values are lists
+                 of models
+        :rtype: dict(<str, list(<str>)>)
         """
         # todo: needs heavy refactor
         instrument_dict = {}
@@ -151,31 +155,18 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
             raise HookLoaderError(msg)
 
         for i in instruments.values():
-            i_name = i.full_name
-            # i_name, i_unknown, i_type, i_pools = i.split()
-            i_view = PanelDescription(
-                i_name, classname="TaurusForm", floating=False, model=[]
+            instrument_dict[i.full_name] = []
+
+        pool_elements = []
+        for kls in ("Moveable", "ExpChannel", "IORegister"):
+            pool_elements += sorted(
+                ms.getElementsWithInterface(kls).values(),
+                key=attrgetter("name"),
             )
-            instrument_dict[i_name] = i_view
 
-        from operator import attrgetter
-
-        pool_elements = sorted(
-            ms.getElementsWithInterface("Moveable").values(),
-            key=attrgetter("name"),
-        )
-        pool_elements += sorted(
-            ms.getElementsWithInterface("ExpChannel").values(),
-            key=attrgetter("name"),
-        )
-        pool_elements += sorted(
-            ms.getElementsWithInterface("IORegister").values(),
-            key=attrgetter("name"),
-        )
         for elem in pool_elements:
             instrument = elem.instrument
             if instrument:
-                i_name = instrument
                 # -----------------------------------------------------------
                 # Support sardana v<2.4 (which used tango names instead of
                 # taurus full names
@@ -183,25 +174,34 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
                 if not e_name.startswith("tango://"):
                     e_name = "tango://%s" % e_name
                 # -----------------------------------------------------------
-                instrument_dict[i_name].model.append(e_name)
+                instrument_dict[instrument].append(e_name)
         # filter out empty panels
         ret = [
-            instrument
-            for instrument in instrument_dict.values()
-            if len(instrument.model) > 0
+            i
+            for i in instrument_dict
+            if len(instrument_dict[i]) > 0
         ]
         return ret
 
     @staticmethod
-    def loadInstrumentPanels(gui, poolinstruments):
+    def _createInstrumentPanels(gui, poolinstruments):
         """
-        Create GUI panels from Sardana Pool instruments
+        Create GUI panels from Sardana Pool instruments. Each panel is a
+        TaurusForm grouping together all those elements that belong to
+        the same instrument according to the Pool info
+
+        :param TaurusGui gui: isntance of TaurusGui
+        :param dict(<str, list(<str>)) poolinstruments: dictionary where keys
+                                                        are panel names and
+                                                        values are lists of
+                                                        models
+        :return: None
         """
 
-        for p in poolinstruments:
+        for name, model in poolinstruments.items():
             try:
                 try:
-                    gui.splashScreen().showMessage("Creating instrument panel %s" % p.name)
+                    gui.splashScreen().showMessage("Creating instrument panel %s" % name)
                 except AttributeError:
                     pass
                 from taurus.qt.qtgui.panel.taurusform import TaurusForm
@@ -212,25 +212,20 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
                 if gui._customWidgetMap:
                     w.setCustomWidgetMap(gui._customWidgetMap)
                 # -------------------------------------------------------------
-                w.setModel(p.model)
-                instrumentkey = gui.IMPLICIT_ASSOCIATION
+                w.setModel(model)
 
                 # the pool instruments may change when the pool config changes,
                 # so we do not store their config
-                registerconfig = False
-                # create a panel
-
                 gui.createPanel(
                     w,
-                    p.name,
+                    name,
                     floating=False,
                     registerconfig=False,
-                    instrumentkey=instrumentkey,
+                    instrumentkey=gui.IMPLICIT_ASSOCIATION,
                     permanent=True,
                 )
             except Exception as e:
-                msg = "Cannot create instrument panel %s: %s" % (getattr(
-                    p, "name", "__Unknown__"), str(e))
+                msg = "Cannot create instrument panel %s: %s" % (name, str(e))
                 raise HookLoaderError(msg)
 
 
