@@ -28,13 +28,9 @@ from taurus import Device
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
 )
-from taurus.qt.qtgui.taurusgui.config_loader.pyconf import (
-    PyConfigLoader,
-)
-from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import (
-    XmlConfigLoader,
-)
+from taurus.qt.qtgui.taurusgui.config_loader.pyconf import PyConfigLoader
 from taurus.qt.qtgui.taurusgui.config_loader.util import HookLoaderError
+from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import XmlConfigLoader
 
 __all__ = ["PySardanaConfigLoader", "XmlSardanaConfigLoader"]
 
@@ -59,7 +55,9 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
         super(BaseSardanaConfigLoader, self).__init__(confname)
         # explicit copy of AbstractConfigLoader.CONFIG_VALUES is made on purpose
         # this way we avoid problems about changing it for other derived classes
-        self.CONFIG_VALUES = AbstractConfigLoader.CONFIG_VALUES[:] + self.SARDANA_VALUES
+        self.CONFIG_VALUES = (
+            AbstractConfigLoader.CONFIG_VALUES[:] + self.SARDANA_VALUES
+        )
 
     @property
     def hooks(self):
@@ -151,7 +149,10 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
             if instruments is None:
                 raise Exception()
         except Exception as e:
-            msg = 'Could not fetch Instrument list from "%s": %s' % (macroservername, str(e))
+            msg = 'Could not fetch Instrument list from "%s": %s' % (
+                macroservername,
+                str(e),
+            )
             raise HookLoaderError(msg)
 
         for i in instruments.values():
@@ -176,11 +177,7 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
                 # -----------------------------------------------------------
                 instrument_dict[instrument].append(e_name)
         # filter out empty panels
-        ret = [
-            i
-            for i in instrument_dict
-            if len(instrument_dict[i]) > 0
-        ]
+        ret = [i for i in instrument_dict if len(instrument_dict[i]) > 0]
         return ret
 
     @staticmethod
@@ -201,10 +198,13 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
         for name, model in poolinstruments.items():
             try:
                 try:
-                    gui.splashScreen().showMessage("Creating instrument panel %s" % name)
+                    gui.splashScreen().showMessage(
+                        "Creating instrument panel %s" % name
+                    )
                 except AttributeError:
                     pass
                 from taurus.qt.qtgui.panel.taurusform import TaurusForm
+
                 w = TaurusForm()
 
                 # -------------------------------------------------------------

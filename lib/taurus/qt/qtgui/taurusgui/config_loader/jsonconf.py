@@ -27,12 +27,15 @@ import json
 import os
 
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader
+    AbstractConfigLoader,
 )
 from taurus.qt.qtgui.taurusgui.config_loader.util import ConfigLoaderError
-from taurus.qt.qtgui.taurusgui.utils import (AppletDescription, ExternalApp,
-                                             PanelDescription,
-                                             ToolBarDescription)
+from taurus.qt.qtgui.taurusgui.utils import (
+    AppletDescription,
+    ExternalApp,
+    PanelDescription,
+    ToolBarDescription,
+)
 
 __all__ = ["JsonConfigLoader"]
 

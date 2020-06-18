@@ -33,7 +33,6 @@ import pkg_resources
 
 from taurus import warning
 
-
 __all__ = ["getLoaders", "ConfigLoaderError", "HookLoaderError"]
 
 
@@ -53,7 +52,10 @@ class HookLoaderError(ConfigLoaderError):
     """
 
     def __init__(self, message):
-        message = "Exception raised while executing config loader hookhook: " + message
+        message = (
+            "Exception raised while executing config loader hookhook: "
+            + message
+        )
         super(HookLoaderError, self).__init__(message)
 
 

@@ -24,11 +24,11 @@
 """"""
 from taurus.external.qt import Qt
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader
+    AbstractConfigLoader,
 )
 from taurus.qt.qtgui.taurusgui.config_loader.pyconf import PyConfigLoader
-from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import XmlConfigLoader
 from taurus.qt.qtgui.taurusgui.config_loader.util import HookLoaderError
+from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import XmlConfigLoader
 
 __all__ = ["BckCompatConfigLoader"]
 
