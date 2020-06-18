@@ -30,7 +30,9 @@ import sys
 import types
 
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
-    AbstractConfigLoader, ConfigLoaderError)
+    AbstractConfigLoader
+)
+from taurus.qt.qtgui.taurusgui.config_loader.util import ConfigLoaderError
 from taurus.qt.qtgui.taurusgui.utils import (AppletDescription, ExternalApp,
                                              PanelDescription,
                                              ToolBarDescription)

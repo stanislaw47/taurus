@@ -50,7 +50,7 @@ from taurus.qt.qtgui.util.ui import UILoadable
 from taurus.qt.qtgui.taurusgui.utils import ExternalAppAction
 from taurus.core.util.log import deprecation_decorator
 from taurus.qt.qtgui.taurusgui.config_loader import getLoaders
-from taurus.qt.qtgui.taurusgui.config_loader.abstract import HookLoaderError
+from taurus.qt.qtgui.taurusgui.config_loader.util import HookLoaderError
 
 
 __all__ = ["DockWidgetPanel", "TaurusGui"]

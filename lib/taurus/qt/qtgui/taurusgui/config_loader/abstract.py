@@ -29,27 +29,7 @@ if not hasattr(abc, "ABC"):
     setattr(abc, "ABC", abc.ABCMeta("ABC", (object,), {}))
 
 
-__all__ = ["AbstractConfigLoader", "ConfigLoaderError", "HookLoaderError"]
-
-
-class ConfigLoaderError(Exception):
-    """
-    Base exception raised by ConfigLoader
-    """
-
-    def __init__(self, message):
-        message = "Exception raised while loading configuration: " + message
-        super(ConfigLoaderError, self).__init__(message)
-
-
-class HookLoaderError(ConfigLoaderError):
-    """
-    Exception raised by config loader hooks
-    """
-
-    def __init__(self, message):
-        message = "Exception raised while executing config loader hookhook: " + message
-        super(HookLoaderError, self).__init__(message)
+__all__ = ["AbstractConfigLoader"]
 
 
 class AbstractConfigLoader(abc.ABC):

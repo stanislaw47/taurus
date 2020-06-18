@@ -26,8 +26,8 @@
 from taurus import Device
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
-    HookLoaderError,
 )
+from taurus.qt.qtgui.taurusgui.config_loader.util import HookLoaderError
 from taurus.qt.qtgui.taurusgui.utils import PanelDescription
 
 __all__ = ["SardanaConfigLoader"]
