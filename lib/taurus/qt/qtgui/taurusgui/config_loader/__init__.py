@@ -35,7 +35,7 @@ from taurus import warning
 __all__ = ["getLoader"]
 
 
-def getLoader(confname):
+def getLoaders(confname):
     """
     Discover proper config loader based on passed string.
     It can be either path to file or directory or Python

@@ -49,7 +49,7 @@ from taurus.qt.qtgui.taurusgui.utils import ExternalApp, PanelDescription
 from taurus.qt.qtgui.util.ui import UILoadable
 from taurus.qt.qtgui.taurusgui.utils import ExternalAppAction
 from taurus.core.util.log import deprecation_decorator
-from taurus.qt.qtgui.taurusgui.config_loader import getLoader
+from taurus.qt.qtgui.taurusgui.config_loader import getLoaders
 
 
 __all__ = ["DockWidgetPanel", "TaurusGui"]
@@ -914,7 +914,7 @@ class TaurusGui(TaurusMainWindow):
         '''
         conf = {}
         try:
-            loaders = getLoader(confname)
+            loaders = getLoaders(confname)
             for loader in loaders:
                 conf.update(loader.load())
             if "CONF_DIR" in conf:
