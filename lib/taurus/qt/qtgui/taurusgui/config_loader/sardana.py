@@ -27,13 +27,19 @@ from taurus import Device
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
 )
+from taurus.qt.qtgui.taurusgui.config_loader.pyconf import (
+    PyConfigLoader,
+)
+from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import (
+    XmlConfigLoader,
+)
 from taurus.qt.qtgui.taurusgui.config_loader.util import HookLoaderError
 from taurus.qt.qtgui.taurusgui.utils import PanelDescription
 
-__all__ = ["SardanaConfigLoader"]
+__all__ = ["PySardanaConfigLoader", "XmlSardanaConfigLoader"]
 
 
-class SardanaConfigLoader(AbstractConfigLoader):
+class BaseSardanaConfigLoader(AbstractConfigLoader):
     """
     Config loader which loads Sardana-related values.
     This lives as a hack for manupulating AbstracLoader.CONFIG_VALUES.
@@ -50,15 +56,10 @@ class SardanaConfigLoader(AbstractConfigLoader):
     ]
 
     def __init__(self, confname):
-        super(SardanaConfigLoader, self).__init__(confname)
-        AbstractConfigLoader.CONFIG_VALUES + self.SARDANA_VALUES
-
-    @staticmethod
-    def supports(confname):
-        return True
-
-    def load(self):
-        return {}
+        super(BaseSardanaConfigLoader, self).__init__(confname)
+        # explicit copy of AbstractConfigLoader.CONFIG_VALUES is made on purpose
+        # this way we avoid problems about changing it for other derived classes
+        self.CONFIG_VALUES = AbstractConfigLoader.CONFIG_VALUES[:] + self.SARDANA_VALUES
 
     @property
     def hooks(self):
@@ -232,3 +233,11 @@ class SardanaConfigLoader(AbstractConfigLoader):
                 msg = "Cannot create instrument panel %s: %s" % (getattr(
                     p, "name", "__Unknown__"), str(e))
                 raise HookLoaderError(msg)
+
+
+class PySardanaConfigLoader(PyConfigLoader, BaseSardanaConfigLoader):
+    pass
+
+
+class XmlSardanaConfigLoader(XmlConfigLoader, BaseSardanaConfigLoader):
+    pass
