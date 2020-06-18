@@ -1034,17 +1034,12 @@ class TaurusGui(TaurusMainWindow):
         for s in synoptic:
             self.createMainSynoptic(s)
 
-    def _loadCustomPanels(self, conf, poolinstruments=None):
+    def _loadCustomPanels(self, conf):
         """
         get custom panel descriptions from the python config file, xml config and
         create panels based on the panel descriptions
         """
-        if poolinstruments is None:
-            custom_panels = conf["PanelDescriptions"]
-        else:
-            custom_panels = poolinstruments
-
-        for p in custom_panels:
+        for p in conf["PanelDescriptions"]:
             try:
                 try:
                     self.splashScreen().showMessage("Creating panel %s" % p.name)
@@ -1088,17 +1083,13 @@ class TaurusGui(TaurusMainWindow):
                         w.setFormat(p.widget_formatter)
 
                 icon = p.icon
-                # the pool instruments may change when the pool config changes,
-                # so we do not store their config
-                if poolinstruments is None:
-                    registerconfig = False
                 # create a panel
 
                 self.createPanel(
                     w,
                     p.name,
                     floating=p.floating,
-                    registerconfig=registerconfig,
+                    registerconfig=True,
                     instrumentkey=instrumentkey,
                     permanent=True,
                     icon=icon

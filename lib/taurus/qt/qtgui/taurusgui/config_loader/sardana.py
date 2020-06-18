@@ -125,15 +125,10 @@ class SardanaConfigLoader(AbstractConfigLoader):
                 )
             except AttributeError:
                 pass
-            pool_instruments = self.createInstrumentsFromPool(
-                ms
-            )  # auto create instruments from pool
-        else:
-            pool_instruments = []
 
-        if pool_instruments:
-            gui._loadCustomPanels(conf, pool_instruments)
-        return pool_instruments
+            pool_instruments = self.createInstrumentsFromPool(ms)
+            if pool_instruments:
+                self.loadInstrumentPanels(gui, pool_instruments)
 
     @staticmethod
     def createInstrumentsFromPool(gui, macroservername):
@@ -204,3 +199,50 @@ class SardanaConfigLoader(AbstractConfigLoader):
             if len(instrument.model) > 0
         ]
         return ret
+
+    @staticmethod
+    def loadInstrumentPanels(gui, poolinstruments):
+        """
+        get custom panel descriptions from the python config file, xml config and
+        create panels based on the panel descriptions
+        """
+
+        for p in poolinstruments:
+            try:
+                try:
+                    gui.splashScreen().showMessage("Creating instrument panel %s" % p.name)
+                except AttributeError:
+                    pass
+                from taurus.qt.qtgui.panel.taurusform import TaurusForm
+                w = TaurusForm()
+
+                # -------------------------------------------------------------
+                # Backwards-compat. Remove when removing  CW map support
+                if gui._customWidgetMap:
+                    w.setCustomWidgetMap(gui._customWidgetMap)
+                # -------------------------------------------------------------
+                w.setModel(p.model)
+                instrumentkey = gui.IMPLICIT_ASSOCIATION
+
+                # the pool instruments may change when the pool config changes,
+                # so we do not store their config
+                registerconfig = False
+                # create a panel
+
+                gui.createPanel(
+                    w,
+                    p.name,
+                    floating=False,
+                    registerconfig=False,
+                    instrumentkey=instrumentkey,
+                    permanent=True,
+                )
+            except Exception as e:
+                msg = "Cannot create instrument panel %s" % getattr(
+                    p, "name", "__Unknown__")
+                gui.error(msg)
+                gui.traceback(level=taurus.Info)
+                result = Qt.QMessageBox.critical(gui, "Initialization error", "%s\n\n%s" % (
+                    msg, repr(e)), Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore)
+                if result == Qt.QMessageBox.Abort:
+                    sys.exit()
