@@ -23,12 +23,11 @@
 
 """"""
 
-import sys
-
 import taurus
-from taurus.external.qt import Qt
-from taurus.qt.qtgui.taurusgui.config_loader.abstract import \
-    AbstractConfigLoader
+from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
+    AbstractConfigLoader,
+    HookLoaderError,
+)
 from taurus.qt.qtgui.taurusgui.utils import PanelDescription
 
 __all__ = ["SardanaConfigLoader"]
@@ -147,17 +146,9 @@ class SardanaConfigLoader(AbstractConfigLoader):
             if instruments is None:
                 raise Exception()
         except Exception as e:
-            msg = 'Could not fetch Instrument list from "%s"' % macroservername
-            gui.error(msg)
-            result = Qt.QMessageBox.critical(
-                gui,
-                "Initialization error",
-                "%s\n\n%s" % (msg, repr(e)),
-                Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore,
-            )
-            if result == Qt.QMessageBox.Abort:
-                sys.exit()
-            return []
+            msg = 'Could not fetch Instrument list from "%s": %s' % (macroservername, str(e))
+            raise HookLoaderError(msg)
+
         for i in instruments.values():
             i_name = i.full_name
             # i_name, i_unknown, i_type, i_pools = i.split()
@@ -238,11 +229,6 @@ class SardanaConfigLoader(AbstractConfigLoader):
                     permanent=True,
                 )
             except Exception as e:
-                msg = "Cannot create instrument panel %s" % getattr(
-                    p, "name", "__Unknown__")
-                gui.error(msg)
-                gui.traceback(level=taurus.Info)
-                result = Qt.QMessageBox.critical(gui, "Initialization error", "%s\n\n%s" % (
-                    msg, repr(e)), Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore)
-                if result == Qt.QMessageBox.Abort:
-                    sys.exit()
+                msg = "Cannot create instrument panel %s: %s" % (getattr(
+                    p, "name", "__Unknown__"), str(e))
+                raise HookLoaderError(msg)

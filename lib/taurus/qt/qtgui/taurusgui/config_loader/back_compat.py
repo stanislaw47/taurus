@@ -22,16 +22,13 @@
 ###########################################################################
 
 """"""
-import sys
-
-import taurus
 from taurus.external.qt import Qt
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
+    HookLoaderError,
 )
 from taurus.qt.qtgui.taurusgui.config_loader.pyconf import PyConfigLoader
 from taurus.qt.qtgui.taurusgui.config_loader.xmlconf import XmlConfigLoader
-from taurus.qt.qtgui.taurusgui.utils import AppletDescription
 
 __all__ = ["BckCompatConfigLoader"]
 
@@ -89,17 +86,7 @@ class BckCompatConfigLoader(AbstractConfigLoader):
             # register the toolbar as delegate
             gui.registerConfigDelegate(w, "monitor")
         except Exception as e:
-            msg = "Cannot add applet 'monitor'"
-            gui.error(msg)
-            gui.traceback(level=taurus.Info)
-            result = Qt.QMessageBox.critical(
-                gui,
-                "Initialization error",
-                "%s\n\n%s" % (msg, repr(e)),
-                Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore,
-            )
-            if result == Qt.QMessageBox.Abort:
-                sys.exit()
+            raise HookLoaderError(str(e))
 
     @staticmethod
     def loadConsole(gui, conf):
