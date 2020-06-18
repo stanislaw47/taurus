@@ -113,6 +113,14 @@ class ExternalApp(object):
 
         return ExternalApp(" ".join((command, params)), text=text, icon=icon)
 
+    def to_dict(self):
+        tmp = {
+            "args": self.args,
+            "kwargs": self.kwargs,
+        }
+
+        return tmp
+
 
 class TaurusGuiComponentDescription(object):
     '''

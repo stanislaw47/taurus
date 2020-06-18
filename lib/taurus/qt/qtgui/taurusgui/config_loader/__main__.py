@@ -19,8 +19,8 @@ def main(conf):
     applets = [p.to_dict() for p in cfg.get("AppletDescriptions", [])]
     cfg["AppletDescriptions"] = applets
 
-    # ext_app = [p.to_dict() for p in cfg.get("ExternalApps", [])]
-    # cfg["ExternalApps"] = ext_app
+    ext_app = [p.to_dict() for p in cfg.get("ExternalApps", [])]
+    cfg["ExternalApps"] = ext_app
 
     pprint(cfg)
 
