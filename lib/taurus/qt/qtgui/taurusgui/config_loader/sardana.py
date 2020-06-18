@@ -195,8 +195,7 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
     @staticmethod
     def loadInstrumentPanels(gui, poolinstruments):
         """
-        get custom panel descriptions from the python config file, xml config and
-        create panels based on the panel descriptions
+        Create GUI panels from Sardana Pool instruments
         """
 
         for p in poolinstruments:
