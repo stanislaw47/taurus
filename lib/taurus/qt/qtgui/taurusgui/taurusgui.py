@@ -932,7 +932,12 @@ class TaurusGui(TaurusMainWindow):
         self._loadAppName(conf, confname)
         self._loadOrgName(conf)
         self._loadCustomLogo(conf)
-        Qt.QApplication.instance().basicConfig()
+
+        # do some extra config if we have a TaurusApplication
+        _app = Qt.QApplication.instance()
+        if hasattr(_app, 'basicConfig'):
+            _app.basicConfig()
+
         self._loadOrgLogo(conf)
 
         self._loadSingleInstance(conf)
