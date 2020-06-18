@@ -50,6 +50,7 @@ from taurus.qt.qtgui.util.ui import UILoadable
 from taurus.qt.qtgui.taurusgui.utils import ExternalAppAction
 from taurus.core.util.log import deprecation_decorator
 from taurus.qt.qtgui.taurusgui.config_loader import getLoaders
+from taurus.qt.qtgui.taurusgui.config_loader.abstract import HookLoaderError
 
 
 __all__ = ["DockWidgetPanel", "TaurusGui"]
@@ -947,9 +948,22 @@ class TaurusGui(TaurusMainWindow):
         self._loadExternalApps(conf)
         self._loadIniFile(conf)
 
-        for loader in loaders:
-            for hook in loader.hooks:
-                hook(self, conf)
+        try:
+            for loader in loaders:
+                for hook in loader.hooks:
+                    hook(self, conf)
+        except Exception as e:
+            msg = "Error while executing config hooks: " + repr(e)
+            self.error(msg)
+            self.traceback(level=taurus.Info)  # use traceback module?
+            result = Qt.QMessageBox.critical(
+                self,
+                "Initialization error",
+                "%s\n\n%s" % (msg, repr(e)),
+                Qt.QMessageBox.Abort | Qt.QMessageBox.Ignore,
+            )
+            if result == Qt.QMessageBox.Abort:
+                sys.exit()
 
     def _loadAppName(self, conf, confname):
         appname = self.getConfigValue(conf, "GUI_NAME")
