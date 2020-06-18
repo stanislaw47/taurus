@@ -38,9 +38,9 @@ __all__ = ["PySardanaConfigLoader", "XmlSardanaConfigLoader"]
 class BaseSardanaConfigLoader(AbstractConfigLoader):
     """
     Config loader which loads Sardana-related values.
-    This lives as a hack for manupulating AbstracLoader.CONFIG_VALUES.
+    This lives as a hack for manipulating AbstractLoader.CONFIG_VALUES.
     It does not load anything by itself, just injects new values into
-    CONFIG_VALUES so other laoders will load them.
+    CONFIG_VALUES so other loaders will load them.
     """
 
     SARDANA_VALUES = [
