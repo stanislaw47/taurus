@@ -293,29 +293,29 @@ class TaurusGui(TaurusMainWindow):
     #: wether to add the Quick access Toolbar (empty by default)
     QUICK_ACCESS_TOOLBAR_ENABLED = True
 
-    # default gui configuration, GUI_NAME is mandatory so not present here
-    DEFAULT_CONFIG = {
-        "ORGANIZATION": str(Qt.qApp.organizationName()) or 'Taurus',
-        "CUSTOM_LOGO": 'logos:taurus.png',
-        "ORGANIZATION_LOGO": getattr(tauruscustomsettings, "ORGANIZATION_LOGO", "logos:taurus.png"),
-        "SINGLE_INSTANCE": True,
-        "EXTRA_CATALOG_WIDGETS": [],
-        "MANUAL_URI": taurus.Release.url,
-        "SYNOPTIC": [],
-        "CONF_DIR": os.path.expanduser("~"),  # maybe '~/.config' ?
-        "INIFILE": os.path.join(os.path.expanduser("~", "default.ini")),
-        "PanelDescriptions": [],
-        "ToolbarDescriptions": [],
-        "AppletDescriptions": [],
-        "ExternalApps": [],
-    }
-
     def __init__(self, parent=None, confname=None, configRecursionDepth=None,
                  settingsname=None):
         TaurusMainWindow.__init__(self, parent, False, True)
 
         if configRecursionDepth is not None:
             self.defaultConfigRecursionDepth = configRecursionDepth
+
+        # default gui configuration, GUI_NAME is mandatory so not present here
+        self.__conf = {
+            "ORGANIZATION": str(Qt.qApp.organizationName()) or 'Taurus',
+            "CUSTOM_LOGO": 'logos:taurus.png',
+            "ORGANIZATION_LOGO": getattr(tauruscustomsettings, "ORGANIZATION_LOGO", "logos:taurus.png"),
+            "SINGLE_INSTANCE": True,
+            "EXTRA_CATALOG_WIDGETS": [],
+            "MANUAL_URI": taurus.Release.url,
+            "SYNOPTIC": [],
+            "CONF_DIR": os.path.expanduser("~"),  # maybe '~/.config' ?
+            "INIFILE": os.path.join(os.path.expanduser("~", "default.ini")),
+            "PanelDescriptions": [],
+            "ToolbarDescriptions": [],
+            "AppletDescriptions": [],
+            "ExternalApps": [],
+        }
 
         self.__panels = {}
         self.__external_app = {}
@@ -923,20 +923,19 @@ class TaurusGui(TaurusMainWindow):
             toggleSynopticAction = synopticpanel.toggleViewAction()
             self.quickAccessToolBar.addAction(toggleSynopticAction)
 
-    def getConfigValue(self, conf, field):
-        return conf[field]
+    def getConfigValue(self, field):
+        return self.__conf[field]
 
     def loadConfiguration(self, confname):
         '''Reads a configuration file
         '''
-        conf = copy.deepcopy(self.DEFAULT_CONFIG)  # maybe no need for deep copy
         try:
             loaders = getLoaders(confname)
             for loader in loaders:
-                conf.update(loader.load())
-            self._confDirectory = self.getConfigValue(conf, "CONF_DIR")
+                self.__conf.update(loader.load())
+            self._confDirectory = self.getConfigValue("CONF_DIR")
 
-            if "GUI_NAME" not in conf:
+            if "GUI_NAME" not in self.__conf:
                 raise Exception("Configuration missing required field 'GUI_NAME")
         except Exception:
             import traceback
@@ -972,7 +971,7 @@ class TaurusGui(TaurusMainWindow):
         try:
             for loader in loaders:
                 for hook in loader.hooks:
-                    hook(self, conf)
+                    hook(self, self.__conf)
         except Exception as e:
             msg = "Error while executing config hooks: " + repr(e)
             self.error(msg)
@@ -986,17 +985,17 @@ class TaurusGui(TaurusMainWindow):
             if result == Qt.QMessageBox.Abort:
                 sys.exit()
 
-    def _loadAppName(self, conf, confname):
-        appname = self.getConfigValue(conf, "GUI_NAME")
+    def _loadAppName(self, confname):
+        appname = self.getConfigValue("GUI_NAME")
         Qt.qApp.setApplicationName(appname)
         self.setWindowTitle(appname)
 
-    def _loadOrgName(self, conf):
-        orgname = self.getConfigValue(conf, "ORGANIZATION")
+    def _loadOrgName(self):
+        orgname = self.getConfigValue("ORGANIZATION")
         Qt.qApp.setOrganizationName(orgname)
 
-    def _loadCustomLogo(self, conf):
-        custom_logo = self.getConfigValue(conf, "CUSTOM_LOGO")
+    def _loadCustomLogo(self):
+        custom_logo = self.getConfigValue("CUSTOM_LOGO")
         if Qt.QFile.exists(custom_logo):
             custom_icon = Qt.QIcon(custom_logo)
         else:
@@ -1006,8 +1005,8 @@ class TaurusGui(TaurusMainWindow):
         if self.APPLETS_TOOLBAR_ENABLED:
             self.jorgsBar.addAction(custom_icon, Qt.qApp.applicationName())
 
-    def _loadOrgLogo(self, conf):
-        org_logo = self.getConfigValue(conf, "ORGANIZATION_LOGO")
+    def _loadOrgLogo(self):
+        org_logo = self.getConfigValue("ORGANIZATION_LOGO")
         if Qt.QFile.exists(org_logo):
             org_icon = Qt.QIcon(org_logo)
         else:
@@ -1016,11 +1015,11 @@ class TaurusGui(TaurusMainWindow):
         if self.APPLETS_TOOLBAR_ENABLED:
             self.jorgsBar.addAction(org_icon, Qt.qApp.organizationName())
 
-    def _loadSingleInstance(self, conf):
+    def _loadSingleInstance(self):
         """
         if required, enforce that only one instance of this GUI can be run
         """
-        single_inst = self.getConfigValue(conf, "SINGLE_INSTANCE")
+        single_inst = self.getConfigValue("SINGLE_INSTANCE")
 
         if single_inst:
             if not self.checkSingleInstance():
@@ -1031,12 +1030,12 @@ class TaurusGui(TaurusMainWindow):
                     self, 'Multiple copies', msg, Qt.QMessageBox.Abort)
                 sys.exit(1)
 
-    def _loadExtraCatalogWidgets(self, conf):
+    def _loadExtraCatalogWidgets(self):
         """
         get custom widget catalog entries
         """
         # @todo: support also loading from xml
-        extra_catalog_widgets = self.getConfigValue(conf, "EXTRA_CATALOG_WIDGETS")
+        extra_catalog_widgets = self.getConfigValue("EXTRA_CATALOG_WIDGETS")
         self._extraCatalogWidgets = []
         for class_name, pix_map_name in extra_catalog_widgets:
             # If a relative file name is given, the conf directory will be used
@@ -1045,20 +1044,20 @@ class TaurusGui(TaurusMainWindow):
                 pix_map_name = os.path.join(self._confDirectory, pix_map_name)
             self._extraCatalogWidgets.append((class_name, pix_map_name))
 
-    def _loadManualUri(self, conf):
+    def _loadManualUri(self):
         """
         manual panel
         """
-        manual_uri = self.getConfigValue(conf, "MANUAL_URI")
+        manual_uri = self.getConfigValue("MANUAL_URI")
         self.setHelpManualURI(manual_uri)
 
         if self.HELP_MENU_ENABLED:
             self.createPanel(self.helpManualBrowser, 'Manual', permanent=True,
                              icon=Qt.QIcon.fromTheme('help-browser'))
     
-    def _loadSynoptic(self, conf):
+    def _loadSynoptic(self):
         # Synoptics
-        synoptic = self.getConfigValue(conf, "SYNOPTIC")
+        synoptic = self.getConfigValue("SYNOPTIC")
         if isinstance(synoptic, string_types):  # old config file style
             self.warning(
                 'Deprecated usage of synoptic keyword (now it expects a list of paths). Please update your configuration file to: "synoptic=[\'%s\']".' % synoptic)
@@ -1066,7 +1065,7 @@ class TaurusGui(TaurusMainWindow):
         for s in synoptic:
             self.createMainSynoptic(s)
 
-    def _loadCustomPanels(self, conf):
+    def _loadCustomPanels(self):
         """
         get custom panel descriptions from the python config file, xml config and
         create panels based on the panel descriptions
@@ -1136,7 +1135,7 @@ class TaurusGui(TaurusMainWindow):
                 if result == Qt.QMessageBox.Abort:
                     sys.exit()
 
-    def _loadCustomToolBars(self, conf):
+    def _loadCustomToolBars(self):
         """
         get custom toolbars descriptions from the python config file, xml config and
         create toolbars based on the descriptions
@@ -1169,7 +1168,7 @@ class TaurusGui(TaurusMainWindow):
                 if result == Qt.QMessageBox.Abort:
                     sys.exit()
 
-    def _loadCustomApplets(self, conf):
+    def _loadCustomApplets(self):
         """
         get custom applet descriptions from the python config file, xml config and
         create applet based on the descriptions
@@ -1198,7 +1197,7 @@ class TaurusGui(TaurusMainWindow):
                 if result == Qt.QMessageBox.Abort:
                     sys.exit()
 
-    def _loadExternalApps(self, conf):
+    def _loadExternalApps(self):
         """
         add external applications from both the python and the xml config files
         """
@@ -1206,12 +1205,12 @@ class TaurusGui(TaurusMainWindow):
             self._external_app_names.append(str(a.getAction().text()))
             self.addExternalAppLauncher(a.getAction())
 
-    def _loadIniFile(self, conf):
+    def _loadIniFile(self):
         """
         get the "factory settings" filename. By default, it is called
         "default.ini" and resides in the configuration dir
         """
-        ini_file = self.getConfigValue(conf, "INIFILE")
+        ini_file = self.getConfigValue("INIFILE")
 
         # read the settings (or the factory settings if the regular file is not
         # found)
