@@ -343,6 +343,23 @@ class TaurusGuiComponentDescription(object):
                                 floating=floating, sharedDataWrite=sharedDataWrite, sharedDataRead=sharedDataRead,
                                 model=model)
 
+    def to_dict(self):
+        """
+        Return dictionary representation of data
+        """
+        tmp = {
+            "name": self.name,
+            "classname": self.classname,
+            "modulename": self.modulename,
+            "widgetname": self.widgetname,
+            "floating": self.floating,
+            "sharedDataWrite": self.sharedDataWrite,
+            "sharedDataRead": self.sharedDataRead,
+            "model": self.model,
+        }
+
+        return tmp
+
     #=========================================================================
     # Properties
     #=========================================================================
@@ -432,6 +449,22 @@ class PanelDescription(TaurusGuiComponentDescription):
             widget_formatter=panel.widget_formatter,
             widget_properties=panel.widget_properties
             )
+
+    def to_dict(self):
+        """
+        Return dictionary representation of data
+        """
+        from_parent = TaurusGuiComponentDescription.to_dict(self)
+        custom = {
+            "instrumentkey": self.instrumentkey,
+            "icon": self.icon,
+            "model_in_config": self.model_in_config,
+            "modifiable_by_user": self.modifiable_by_user,
+            "widget_formatter": self.widget_formatter,
+            "widget_properties": self.widget_properties,
+        }
+
+        return from_parent.update(custom)
 
 
 class ToolBarDescription(TaurusGuiComponentDescription):
