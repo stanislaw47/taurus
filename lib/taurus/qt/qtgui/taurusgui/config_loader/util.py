@@ -47,8 +47,10 @@ def getLoaders(confname):
     :return: A AbstractConfigLoader subclass object
     """
 
+    EP_GROUP_LOADERS = "taurus.gui.loaders"
+
     loaders = []
-    for ep in pkg_resources.iter_entry_points("taurus.gui.loaders"):
+    for ep in pkg_resources.iter_entry_points(EP_GROUP_LOADERS):
         try:
             loader = ep.load()
             if loader.supports(confname):
