@@ -973,7 +973,7 @@ class TaurusGui(TaurusMainWindow):
         try:
             for loader in loaders:
                 for hook in loader.hooks:
-                    hook(self, self.__conf)
+                    hook(self)
         except Exception as e:
             msg = "Error while executing config hooks: " + repr(e)
             self.error(msg)

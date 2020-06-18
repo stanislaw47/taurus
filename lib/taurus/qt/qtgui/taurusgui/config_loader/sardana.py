@@ -70,14 +70,14 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
         )
 
     @staticmethod
-    def _loadMacroServerName(gui, conf):
+    def _loadMacroServerName(gui):
         macro_server_name = gui.getConfigValue("MACROSERVER_NAME", "")
         if macro_server_name:
             gui.macroserverNameChanged.emit(macro_server_name)
         return macro_server_name
 
     @staticmethod
-    def _loadMacroBroker(gui, conf):
+    def _loadMacroBroker(gui):
         """configure macro infrastructure"""
         ms = gui.getConfigValue("MACROSERVER_NAME", "")
         mp = gui.getConfigValue("MACRO_PANELS", True)
@@ -88,13 +88,13 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
             gui.__macroBroker = MacroBroker(gui)
 
     @staticmethod
-    def _loadDoorName(gui, conf):
+    def _loadDoorName(gui):
         door_name = gui.getConfigValue("DOOR_NAME", True)
         if door_name:
             gui.doorNameChanged.emit(door_name)
 
     @staticmethod
-    def _loadMacroEditorsPath(gui, conf):
+    def _loadMacroEditorsPath(gui):
         macro_editors_path = gui.getConfigValue(
             "MACRO_EDITORS_PATH", True
         )
@@ -106,7 +106,7 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
             ParamEditorManager().parsePaths(macro_editors_path)
             ParamEditorManager().browsePaths()
 
-    def _loadInstrumentsFromPool(self, gui, conf):
+    def _loadInstrumentsFromPool(self, gui):
         """
         Get panel descriptions from pool if required
         """

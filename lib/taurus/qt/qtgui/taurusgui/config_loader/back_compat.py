@@ -66,7 +66,7 @@ class BckCompatConfigLoader(AbstractConfigLoader):
         return self.loadConsole, self.loadMonitor
 
     @staticmethod
-    def loadMonitor(gui, conf):
+    def loadMonitor(gui):
         monitor_model = gui.getConfigValue("MONITOR", "")
         if not monitor_model:
             return
@@ -89,7 +89,7 @@ class BckCompatConfigLoader(AbstractConfigLoader):
             raise HookLoaderError(str(e))
 
     @staticmethod
-    def loadConsole(gui, conf):
+    def loadConsole(gui):
         """
         Deprecated CONSOLE command (if you need a IPython Console, just add a
         Panel with a `silx.gui.console.IPythonWidget`

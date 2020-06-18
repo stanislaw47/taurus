@@ -74,6 +74,6 @@ class AbstractConfigLoader(abc.ABC):
         """
         List of hooks called at the end of 'TaurusGui.loadConfiguration'
         method. Each of them shall be called with 'TaurusGui' instance as
-        first argument and dictionary with configuration as second.
+        only argument.
         """
         return []
