@@ -23,7 +23,7 @@
 
 """"""
 
-import taurus
+from taurus import Device
 from taurus.qt.qtgui.taurusgui.config_loader.abstract import (
     AbstractConfigLoader,
     HookLoaderError,
@@ -141,7 +141,7 @@ class SardanaConfigLoader(AbstractConfigLoader):
         # todo: needs heavy refactor
         instrument_dict = {}
         try:
-            ms = taurus.Device(macroservername)
+            ms = Device(macroservername)
             instruments = ms.getElementsOfType("Instrument")
             if instruments is None:
                 raise Exception()
