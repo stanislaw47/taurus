@@ -9,10 +9,19 @@ def main(conf):
     loaders = getLoaders(conf)
     for loader in loaders:
         cfg.update(loader.load())
-    cfg["PanelDescriptions"] = [p.to_dict() for p in cfg.get("PanelDescriptions", [])]
-    cfg["ToolbarDescriptions"] = [p.to_dict() for p in cfg.get("ToolbarDescriptions", [])]
-    cfg["AppletDescriptions"] = [p.to_dict() for p in cfg.get("AppletDescriptions", [])]
-    cfg["ExternalApps"] = [p.to_dict() for p in cfg.get("ExternalApps", [])]
+    # pprint(cfg)
+    panels = [p.to_dict() for p in cfg.get("PanelDescriptions", [])]
+    cfg["PanelDescriptions"] = panels
+
+    toolbars = [p.to_dict() for p in cfg.get("ToolBarDescriptions", [])]
+    cfg["ToolBarDescriptions"] = toolbars
+
+    applets = [p.to_dict() for p in cfg.get("AppletDescriptions", [])]
+    cfg["AppletDescriptions"] = applets
+
+    # ext_app = [p.to_dict() for p in cfg.get("ExternalApps", [])]
+    # cfg["ExternalApps"] = ext_app
+
     pprint(cfg)
 
 
