@@ -1071,7 +1071,7 @@ class TaurusGui(TaurusMainWindow):
         get custom panel descriptions from the python config file, xml config and
         create panels based on the panel descriptions
         """
-        for p in conf["PanelDescriptions"]:
+        for p in self.getConfigValue("PanelDescriptions"):
             try:
                 try:
                     self.splashScreen().showMessage("Creating panel %s" % p.name)
@@ -1141,7 +1141,7 @@ class TaurusGui(TaurusMainWindow):
         get custom toolbars descriptions from the python config file, xml config and
         create toolbars based on the descriptions
         """
-        for d in conf["ToolbarDescriptinos"]:
+        for d in self.getConfigValue("ToolbarDescriptinos"):
             try:
                 try:
                     self.splashScreen().showMessage("Creating Toolbar %s" % d.name)
@@ -1174,7 +1174,7 @@ class TaurusGui(TaurusMainWindow):
         get custom applet descriptions from the python config file, xml config and
         create applet based on the descriptions
         """
-        for d in conf["AppletDescriptions"]:
+        for d in self.getConfigValue("AppletDescriptions"):
             try:
                 try:
                     self.splashScreen().showMessage("Creating applet %s" % d.name)
@@ -1202,7 +1202,7 @@ class TaurusGui(TaurusMainWindow):
         """
         add external applications from both the python and the xml config files
         """
-        for a in conf["ExternalApps"]:
+        for a in self.getConfigValue("ExternalApps"):
             self._external_app_names.append(str(a.getAction().text()))
             self.addExternalAppLauncher(a.getAction())
 
