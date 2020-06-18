@@ -67,8 +67,8 @@ class BckCompatConfigLoader(AbstractConfigLoader):
 
     @staticmethod
     def loadMonitor(gui, conf):
-        monitor_model = gui.getConfigValue(conf, "MONITOR")
-        if monitor_model is None:
+        monitor_model = gui.getConfigValue("MONITOR", "")
+        if not monitor_model:
             return
 
         try:
@@ -95,7 +95,7 @@ class BckCompatConfigLoader(AbstractConfigLoader):
         Panel with a `silx.gui.console.IPythonWidget`
         """
         # TODO: remove this method when making deprecation efective
-        if not gui.getConfigValue(conf, "CONSOLE", []):
+        if not gui.getConfigValue("CONSOLE", []):
             return
 
         msg = (

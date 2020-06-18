@@ -71,7 +71,7 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
 
     @staticmethod
     def _loadMacroServerName(gui, conf):
-        macro_server_name = gui.getConfigValue(conf, "MACROSERVER_NAME")
+        macro_server_name = gui.getConfigValue("MACROSERVER_NAME", "")
         if macro_server_name:
             gui.macroserverNameChanged.emit(macro_server_name)
         return macro_server_name
@@ -79,24 +79,24 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
     @staticmethod
     def _loadMacroBroker(gui, conf):
         """configure macro infrastructure"""
-        ms = gui.getConfigValue(conf, "MACROSERVER_NAME")
-        mp = gui.getConfigValue(conf, "MACRO_PANELS", True)
+        ms = gui.getConfigValue("MACROSERVER_NAME", "")
+        mp = gui.getConfigValue("MACRO_PANELS", True)
         # macro infrastructure will only be created if MACROSERVER_NAME is set
-        if ms is not None and mp is True:
+        if ms and mp is True:
             from sardana.taurus.qt.qtgui.macrolistener import MacroBroker
 
             gui.__macroBroker = MacroBroker(gui)
 
     @staticmethod
     def _loadDoorName(gui, conf):
-        door_name = gui.getConfigValue(conf, "DOOR_NAME", True)
+        door_name = gui.getConfigValue("DOOR_NAME", True)
         if door_name:
             gui.doorNameChanged.emit(door_name)
 
     @staticmethod
     def _loadMacroEditorsPath(gui, conf):
         macro_editors_path = gui.getConfigValue(
-            conf, "MACRO_EDITORS_PATH", True
+            "MACRO_EDITORS_PATH", True
         )
         if macro_editors_path:
             from sardana.taurus.qt.qtgui.extra_macroexecutor.macroparameterseditor.macroparameterseditor import (
@@ -111,10 +111,12 @@ class BaseSardanaConfigLoader(AbstractConfigLoader):
         Get panel descriptions from pool if required
         """
         # todo: needs heavy refactor
-        ms = gui.getConfigValue(conf, "MACROSERVER_NAME")
+        ms = gui.getConfigValue("MACROSERVER_NAME", "")
+        if not ms:
+            return
 
         instruments_from_pool = gui.getConfigValue(
-            conf, "INSTRUMENTS_FROM_POOL", False
+            "INSTRUMENTS_FROM_POOL", False
         )
         if instruments_from_pool:
             try:

@@ -923,7 +923,9 @@ class TaurusGui(TaurusMainWindow):
             toggleSynopticAction = synopticpanel.toggleViewAction()
             self.quickAccessToolBar.addAction(toggleSynopticAction)
 
-    def getConfigValue(self, field):
+    def getConfigValue(self, field, default=None):
+        if default is not None:
+            return self.__conf.get(field, default)
         return self.__conf[field]
 
     def loadConfiguration(self, confname):
@@ -945,28 +947,28 @@ class TaurusGui(TaurusMainWindow):
                 self, 'Initialization error', msg, Qt.QMessageBox.Abort)
             sys.exit()
 
-        self._loadAppName(conf, confname)
-        self._loadOrgName(conf)
-        self._loadCustomLogo(conf)
+        self._loadAppName(confname)
+        self._loadOrgName()
+        self._loadCustomLogo()
 
         # do some extra config if we have a TaurusApplication
         _app = Qt.QApplication.instance()
         if hasattr(_app, 'basicConfig'):
             _app.basicConfig()
 
-        self._loadOrgLogo(conf)
+        self._loadOrgLogo()
 
-        self._loadSingleInstance(conf)
+        self._loadSingleInstance()
 
-        self._loadExtraCatalogWidgets(conf)
-        self._loadManualUri(conf)
-        self._loadSynoptic(conf)
+        self._loadExtraCatalogWidgets()
+        self._loadManualUri()
+        self._loadSynoptic()
 
-        self._loadCustomPanels(conf)
-        self._loadCustomToolBars(conf)
-        self._loadCustomApplets(conf)
-        self._loadExternalApps(conf)
-        self._loadIniFile(conf)
+        self._loadCustomPanels()
+        self._loadCustomToolBars()
+        self._loadCustomApplets()
+        self._loadExternalApps()
+        self._loadIniFile()
 
         try:
             for loader in loaders:
